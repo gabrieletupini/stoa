@@ -141,7 +141,7 @@ function buildEntryCardInner(log) {
       <div class="entry-scale${e.warm ? ' warm' : ''}">
         <span class="entry-scale-name">${e.label}</span>
         <span class="entry-scale-dots">${dots}</span>
-        <span class="entry-scale-val">${v}</span>
+        <span class="entry-scale-val">${v}<span class="entry-scale-val-max">/10</span></span>
       </div>
     `;
   }).join('');

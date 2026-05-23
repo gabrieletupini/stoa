@@ -297,28 +297,48 @@ a:hover { color: var(--ink); border-color: var(--ink); }
 
 .entry-scales {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px 18px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px 28px;
   margin-bottom: 14px;
 }
 .entry-scale {
-  display: flex;
+  display: grid;
+  grid-template-columns: 100px 1fr auto;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-size: 13px;
   color: var(--ink-soft);
 }
-.entry-scale-name { flex: 1; min-width: 0; }
-.entry-scale-dots { display: inline-flex; gap: 2px; }
+.entry-scale-name {
+  min-width: 0;
+  letter-spacing: 0.01em;
+}
+.entry-scale-dots {
+  display: inline-flex;
+  gap: 4px;
+}
 .entry-scale-dot {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: var(--border);
+  background: rgba(61, 56, 51, 0.12);
+  transition: background 0.15s ease;
 }
 .entry-scale-dot.on { background: var(--sage); }
 .entry-scale.warm .entry-scale-dot.on { background: var(--warm-red); }
-.entry-scale-val { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; min-width: 22px; text-align: right; }
+.entry-scale-val {
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  min-width: 34px;
+  text-align: right;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+.entry-scale-val .entry-scale-val-max {
+  color: var(--ink-mute);
+  font-weight: 400;
+}
 
 .entry-gratitudes {
   margin-top: 12px;
