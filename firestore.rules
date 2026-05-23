@@ -1,0 +1,30 @@
+rules_version = '2';
+
+// Stoa — Firestore security rules
+// Solo gabritupini@gmail.com e gabritupini3@gmail.com possono leggere/scrivere.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthorized() {
+      return request.auth != null &&
+        request.auth.token.email in [
+          'gabritupini@gmail.com',
+          'gabritupini3@gmail.com'
+        ];
+    }
+
+    // Mood logs — la collezione principale di Stoa
+    match /moodLogs/{logId} {
+      allow read, write: if isAuthorized();
+    }
+
+    // (Compat) eventuali documenti residui con prefisso stoa_
+    match /stoa_moodLogs/{logId} {
+      allow read, write: if isAuthorized();
+    }
+
+    // Tutto il resto bloccato di default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

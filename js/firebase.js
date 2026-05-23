@@ -9,21 +9,21 @@ import {
 
 const ALLOWED_EMAILS = ['gabritupini@gmail.com', 'gabritupini3@gmail.com'];
 
-// Collections live in routiner-db with the stoa_ prefix to avoid any chance
-// of colliding with Routiner or Life Lessons.
-const COL_LOGS = 'stoa_moodLogs';
+// Stoa has its own dedicated Firebase project (stoa-journal-db) so the
+// collection name no longer needs the stoa_ prefix.
+const COL_LOGS = 'moodLogs';
 
 let db, auth;
 let syncStatusCallback = null;
 
 export function initFirebase() {
   const app = initializeApp({
-    apiKey: "AIzaSyCaOEjgmmCbtl00fYif89iVCO5CewiSoVQ",
-    authDomain: "routiner-db.firebaseapp.com",
-    projectId: "routiner-db",
-    storageBucket: "routiner-db.firebasestorage.app",
-    messagingSenderId: "815158931879",
-    appId: "1:815158931879:web:8c5cc7ccfed90210068682",
+    apiKey: "AIzaSyDJ8D1bau4aPw96CINS6H6KukBI1xXmpk4",
+    authDomain: "stoa-journal-db.firebaseapp.com",
+    projectId: "stoa-journal-db",
+    storageBucket: "stoa-journal-db.firebasestorage.app",
+    messagingSenderId: "245233129863",
+    appId: "1:245233129863:web:f797c8d74b72a983369b22",
   });
   db = getFirestore(app);
   auth = getAuth(app);
