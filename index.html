@@ -24,6 +24,8 @@
       Sign in with Google
     </button>
     <p id="login-error" class="login-error"></p>
+    <div class="login-or">or</div>
+    <button id="readonly-btn" class="btn-readonly">Enter read-only →</button>
   </div>
 </div>
 
@@ -41,8 +43,13 @@
       <button class="tab" data-tab="protocols">Protocols</button>
       <button class="tab" data-tab="library">Library</button>
     </nav>
+    <button id="logout-btn" class="btn-logout edit-only" title="Sign out">Sign out</button>
     <span id="sync-status" class="sync-status" title="Sync"></span>
   </header>
+
+  <div id="readonly-banner" class="readonly-banner hidden">
+    Read-only view — <a href="#" id="readonly-banner-signin">sign in</a> to edit
+  </div>
 
   <!-- Today -->
   <main id="view-today" class="view view-active">
@@ -51,7 +58,7 @@
         <h2 class="section-title" id="today-date"></h2>
         <p class="section-sub" id="today-greet">How was your day?</p>
       </div>
-      <button id="open-log-btn" class="btn-primary">+ New entry</button>
+      <button id="open-log-btn" class="btn-primary edit-only">+ New entry</button>
     </div>
 
     <div id="today-log-card" class="entry-card hidden"></div>

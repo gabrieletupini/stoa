@@ -1,5 +1,5 @@
 import {
-  initFirebase, onSyncStatus, onAuthReady, loginWithGoogle,
+  initFirebase, onSyncStatus, onAuthReady, loginWithGoogle, logout,
   subscribeToLogs, createLog, updateLog, deleteLog,
 } from './firebase.js';
 import { PROTOCOLS, ARTICLES, QUOTES, EMOTIONS, TOPIC_LABELS } from './seed-content.js';
@@ -8,6 +8,7 @@ import { PROTOCOLS, ARTICLES, QUOTES, EMOTIONS, TOPIC_LABELS } from './seed-cont
 let logs = [];
 let trendsRange = '7';
 let libraryFilter = 'all';
+let readOnly = false;
 
 // ===== DOM helpers =====
 const $ = (id) => document.getElementById(id);
@@ -29,14 +30,20 @@ function init() {
   });
 
   onAuthReady((user) => {
-    if (!user) {
-      loginScreen.classList.remove('hidden');
-      appEl.classList.add('hidden');
+    if (user) {
+      readOnly = false;
+      document.body.classList.remove('read-only');
+      const banner = $('readonly-banner');
+      if (banner) banner.classList.add('hidden');
+      loginScreen.classList.add('hidden');
+      appEl.classList.remove('hidden');
+      startApp();
       return;
     }
-    loginScreen.classList.add('hidden');
-    appEl.classList.remove('hidden');
-    startApp();
+    if (!readOnly) {
+      loginScreen.classList.remove('hidden');
+      appEl.classList.add('hidden');
+    }
   });
 
   googleBtn.addEventListener('click', async () => {
@@ -45,6 +52,32 @@ function init() {
     if (r.error === 'unauthorized') loginError.textContent = 'Unauthorized account.';
     else if (r.error) loginError.textContent = r.error;
   });
+
+  const readonlyBtn = $('readonly-btn');
+  if (readonlyBtn) {
+    readonlyBtn.addEventListener('click', () => {
+      readOnly = true;
+      document.body.classList.add('read-only');
+      const banner = $('readonly-banner');
+      if (banner) banner.classList.remove('hidden');
+      loginScreen.classList.add('hidden');
+      appEl.classList.remove('hidden');
+      startApp();
+    });
+  }
+  const bannerSignin = $('readonly-banner-signin');
+  if (bannerSignin) {
+    bannerSignin.addEventListener('click', (e) => { e.preventDefault(); window.location.reload(); });
+  }
+  const logoutBtn = $('logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      logoutBtn.disabled = true;
+      logoutBtn.textContent = 'Signing out…';
+      try { await logout(); } catch (err) { console.error('signOut failed:', err); }
+      window.location.reload();
+    });
+  }
 }
 
 let appStarted = false;
@@ -284,6 +317,7 @@ function setupLogModal() {
 }
 
 function openLogModal(log) {
+  if (readOnly) return;
   $('log-modal-title').textContent = log ? 'Edit entry' : 'Evening reflection';
   $('log-id').value = log ? log.id : '';
 
