@@ -14,12 +14,14 @@ service cloud.firestore {
 
     // Mood logs — la collezione principale di Stoa
     match /moodLogs/{logId} {
-      allow read, write: if isAuthorized();
+      allow read: if true;
+      allow write: if isAuthorized();
     }
 
     // (Compat) eventuali documenti residui con prefisso stoa_
     match /stoa_moodLogs/{logId} {
-      allow read, write: if isAuthorized();
+      allow read: if true;
+      allow write: if isAuthorized();
     }
 
     // Tutto il resto bloccato di default
