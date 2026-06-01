@@ -172,7 +172,8 @@ function renderToday() {
       body.onclick = () => openLogModal(log, period);
     } else {
       body.className = 'checkin-body empty';
-      body.innerHTML = `<span class="checkin-prompt">+ Log ${PERIOD_LABEL[period].toLowerCase()} check-in</span>`;
+      const glyph = period === 'morning' ? '☼' : '☾';
+      body.innerHTML = `<span class="checkin-glyph">${glyph}</span><span class="checkin-prompt">Log ${PERIOD_LABEL[period].toLowerCase()} check-in</span>`;
       body.onclick = () => openLogModal(null, period);
     }
   });
