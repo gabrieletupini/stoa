@@ -1,14 +1,24 @@
 import {
   initFirebase, onSyncStatus, onAuthReady, loginWithGoogle, logout,
   subscribeToLogs, createLog, updateLog, deleteLog,
+  subscribeToTriggers, createTrigger, updateTrigger, deleteTrigger,
 } from './firebase.js';
-import { PROTOCOLS, ARTICLES, QUOTES, EMOTIONS, TOPIC_LABELS } from './seed-content.js';
+import { PROTOCOLS, ARTICLES, QUOTES, EMOTIONS, TOPIC_LABELS, TRIGGER_TYPES } from './seed-content.js';
 
 // ===== State =====
 let logs = [];
+let triggers = [];
 let trendsRange = '7';
 let libraryFilter = 'all';
 let readOnly = false;
+
+const _now = new Date();
+let calendarYear = _now.getFullYear();
+let calendarMonth = _now.getMonth();
+
+const PERIODS = ['morning', 'evening'];
+const PERIOD_LABEL = { morning: 'Morning', evening: 'Evening' };
+const logPeriod = (log) => (log && log.period) || 'evening';
 
 // ===== DOM helpers =====
 const $ = (id) => document.getElementById(id);
@@ -87,12 +97,14 @@ function startApp() {
 
   setupTabs();
   setupLogModal();
+  setupTriggerModal();
   setupTrendsRange();
   setupLibraryFilters();
   setupModals();
   setupKeyboard();
 
-  $('open-log-btn').addEventListener('click', () => openLogModal());
+  $('open-trigger-btn').addEventListener('click', () => openTriggerModal());
+  $('open-archive').addEventListener('click', (e) => { e.preventDefault(); openArchive(); });
 
   subscribeToLogs((items) => {
     logs = items;
@@ -100,6 +112,12 @@ function startApp() {
     renderTrends();
   });
 
+  subscribeToTriggers((items) => {
+    triggers = items;
+    renderTriggerCalendar();
+  });
+
+  renderTriggerLegend();
   renderProtocols();
   renderLibrary();
   renderDailyQuote();
@@ -140,27 +158,53 @@ function shortDay(dateStr) {
 
 // ===== Today =====
 function renderToday() {
-  const dateEl = $('today-date');
   const todayStr = today();
-  dateEl.textContent = prettyDate(todayStr);
+  $('today-date').textContent = prettyDate(todayStr);
 
-  const todaysLog = logs.find(l => l.date === todayStr);
-  const cardEl = $('today-log-card');
-  const openBtn = $('open-log-btn');
+  let done = 0;
+  PERIODS.forEach(period => {
+    const log = logs.find(l => l.date === todayStr && logPeriod(l) === period);
+    const body = $('checkin-' + period);
+    if (log) {
+      done++;
+      body.className = 'checkin-body filled';
+      body.innerHTML = buildCheckinSummary(log);
+      body.onclick = () => openLogModal(log, period);
+    } else {
+      body.className = 'checkin-body empty';
+      body.innerHTML = `<span class="checkin-prompt">+ Log ${PERIOD_LABEL[period].toLowerCase()} check-in</span>`;
+      body.onclick = () => openLogModal(null, period);
+    }
+  });
 
-  if (todaysLog) {
-    cardEl.classList.remove('hidden');
-    cardEl.innerHTML = buildEntryCardInner(todaysLog);
-    cardEl.onclick = () => openLogModal(todaysLog);
-    openBtn.textContent = 'Edit today';
-    $('today-greet').textContent = 'Today\'s reflection is in.';
-  } else {
-    cardEl.classList.add('hidden');
-    openBtn.textContent = '+ New entry';
-    $('today-greet').textContent = 'How was your day?';
-  }
+  $('today-greet').textContent =
+    done === 2 ? 'Both check-ins are in. Well held.'
+    : done === 1 ? 'One check-in done — the other is still open.'
+    : 'How is your overall state today?';
 
   renderWeekStrip();
+}
+
+function buildCheckinSummary(log) {
+  const scales = EMOTIONS.map(e => {
+    const v = (log.emotions && log.emotions[e.key]) || 0;
+    return `
+      <div class="checkin-scale${e.warm ? ' warm' : ''}">
+        <span class="checkin-scale-name">${e.label}</span>
+        <span class="checkin-scale-track"><span class="checkin-scale-fill" style="width:${v * 10}%;background:${e.color}"></span></span>
+        <span class="checkin-scale-val">${v}</span>
+      </div>`;
+  }).join('');
+  const sleepText = (log.sleep && log.sleep.hours)
+    ? `${log.sleep.hours}h${log.sleep.quality ? ' · ' + '★'.repeat(log.sleep.quality) : ''}`
+    : '';
+  return `
+    <div class="checkin-summary-head">
+      <span class="checkin-summary-edit edit-only">Edit</span>
+      ${sleepText ? `<span class="checkin-summary-sleep">${sleepText}</span>` : ''}
+    </div>
+    <div class="checkin-scales">${scales}</div>
+  `;
 }
 
 function buildEntryCardInner(log) {
@@ -190,9 +234,11 @@ function buildEntryCardInner(log) {
     ? `${log.sleep.hours}h${log.sleep.quality ? ' · ' + '★'.repeat(log.sleep.quality) : ''}`
     : '';
 
+  const periodTag = `<span class="entry-card-period">${PERIOD_LABEL[logPeriod(log)]}</span>`;
+
   return `
     <div class="entry-card-head">
-      <span class="entry-card-date">${dateLabel}</span>
+      <span class="entry-card-date">${dateLabel} ${periodTag}</span>
       <span class="entry-card-time">${sleepText}</span>
     </div>
     <div class="entry-scales">${scales}</div>
@@ -210,17 +256,28 @@ function renderWeekStrip() {
     const d = new Date(now);
     d.setDate(now.getDate() - i);
     const dateStr = fmtDate(d);
-    const log = logs.find(l => l.date === dateStr);
+    const morning = logs.find(l => l.date === dateStr && logPeriod(l) === 'morning');
+    const evening = logs.find(l => l.date === dateStr && logPeriod(l) === 'evening');
     const isToday = dateStr === today();
+    const any = morning || evening;
     const cell = document.createElement('div');
-    cell.className = 'week-cell' + (log ? '' : ' empty') + (isToday ? ' today' : '');
+    cell.className = 'week-cell' + (any ? '' : ' empty') + (isToday ? ' today' : '');
+
+    const bar = (log) => {
+      const has = !!log;
+      return `<span class="week-cell-bar ${has ? 'has' : ''}" data-period="${has ? logPeriod(log) : ''}"
+        title="${has ? PERIOD_LABEL[logPeriod(log)] : 'no entry'}"
+        style="background:${has ? dominantColor(log) : 'var(--border)'}"></span>`;
+    };
+
     cell.innerHTML = `
       <div class="week-cell-day">${d.toLocaleDateString(undefined, { weekday: 'short' })}</div>
       <div class="week-cell-num">${d.getDate()}</div>
-      <div class="week-cell-bar" style="background:${log ? dominantColor(log) : 'var(--border)'}"></div>
+      <div class="week-cell-bars">${bar(morning)}${bar(evening)}</div>
     `;
-    if (log) cell.addEventListener('click', () => openLogModal(log));
-    else cell.style.cursor = 'default';
+    if (morning) cell.querySelector('[data-period="morning"]').addEventListener('click', (e) => { e.stopPropagation(); openLogModal(morning, 'morning'); });
+    if (evening) cell.querySelector('[data-period="evening"]').addEventListener('click', (e) => { e.stopPropagation(); openLogModal(evening, 'evening'); });
+    if (!any) cell.style.cursor = 'default';
     strip.appendChild(cell);
   }
 }
@@ -244,6 +301,220 @@ function renderDailyQuote() {
   $('daily-quote').innerHTML = `“${escapeHtml(q.text)}” <span class="quote-attr">${escapeHtml(q.author)}</span>`;
 }
 
+// ===== Trigger tracker =====
+const WEEKDAY_LABELS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const triggerType = (key) => TRIGGER_TYPES.find(t => t.key === key) || TRIGGER_TYPES[TRIGGER_TYPES.length - 1];
+const triggerLabel = (t) => (t.type === 'other' && t.customLabel) ? t.customLabel : triggerType(t.type).label;
+
+function renderTriggerLegend() {
+  $('trigger-legend').innerHTML = TRIGGER_TYPES.map(t =>
+    `<span class="trigger-legend-item"><span class="trigger-legend-dot" style="background:${t.color}"></span>${escapeHtml(t.label)}</span>`
+  ).join('');
+}
+
+function renderTriggerCalendar() {
+  const cal = $('trigger-calendar');
+  if (!cal) return;
+
+  const byDate = new Map();
+  for (const t of triggers) {
+    if (!t.date) continue;
+    if (!byDate.has(t.date)) byDate.set(t.date, []);
+    byDate.get(t.date).push(t);
+  }
+  byDate.forEach(arr => arr.sort((a, b) => (a.time || '').localeCompare(b.time || '')));
+
+  const todayStr = today();
+  const firstWeekday = new Date(calendarYear, calendarMonth, 1).getDay();
+  const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+  const monthLabel = new Date(calendarYear, calendarMonth, 1)
+    .toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+
+  const cells = [];
+  for (let i = 0; i < firstWeekday; i++) cells.push('<div class="cal-day cal-day-empty"></div>');
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = `${calendarYear}-${pad(calendarMonth + 1)}-${pad(d)}`;
+    const dayT = byDate.get(key) || [];
+    const isToday = key === todayStr;
+    const chips = dayT.slice(0, 3).map(t => {
+      const tt = triggerType(t.type);
+      const intensity = (t.intensity != null) ? `<span class="cal-chip-intensity">${t.intensity}</span>` : '';
+      const title = triggerLabel(t) + (t.time ? ` · ${t.time}` : '');
+      return `<div class="cal-chip" data-trigger-id="${escapeHtml(t.id)}" style="border-left-color:${tt.color}" title="${escapeHtml(title)}">${intensity}${escapeHtml(triggerLabel(t))}</div>`;
+    }).join('');
+    const more = dayT.length > 3 ? `<div class="cal-more" data-date="${key}">+${dayT.length - 3} more</div>` : '';
+    cells.push(`<div class="cal-day${isToday ? ' cal-day-today' : ''}${dayT.length ? ' cal-day-has' : ''}" data-date="${key}"><div class="cal-day-num">${d}</div>${chips}${more}</div>`);
+  }
+  while (cells.length % 7 !== 0) cells.push('<div class="cal-day cal-day-empty"></div>');
+
+  cal.innerHTML = `
+    <div class="cal-nav">
+      <button class="cal-nav-btn" data-cal-nav="prev" title="Previous month">←</button>
+      <span class="cal-month-label">${escapeHtml(monthLabel)}</span>
+      <button class="cal-nav-btn" data-cal-nav="next" title="Next month">→</button>
+    </div>
+    <div class="cal-weekdays">${WEEKDAY_LABELS_SHORT.map(w => `<span>${w}</span>`).join('')}</div>
+    <div class="cal-grid">${cells.join('')}</div>
+  `;
+
+  cal.querySelectorAll('[data-cal-nav]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.calNav === 'prev') { calendarMonth--; if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; } }
+      else { calendarMonth++; if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; } }
+      renderTriggerCalendar();
+    });
+  });
+
+  cal.querySelectorAll('.cal-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const t = triggers.find(x => x.id === chip.dataset.triggerId);
+      if (t) openTriggerModal(t);
+    });
+  });
+
+  cal.querySelectorAll('.cal-more').forEach(more => {
+    more.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showTriggerDayPopover(more, more.dataset.date, byDate.get(more.dataset.date) || []);
+    });
+  });
+
+  cal.querySelectorAll('.cal-day[data-date]').forEach(cell => {
+    cell.addEventListener('click', (e) => {
+      if (e.target.closest('.cal-chip, .cal-more')) return;
+      const dayT = byDate.get(cell.dataset.date) || [];
+      if (readOnly) {
+        if (dayT.length) showTriggerDayPopover(cell, cell.dataset.date, dayT);
+        return;
+      }
+      openTriggerModal(null, cell.dataset.date);
+    });
+  });
+}
+
+function showTriggerDayPopover(anchor, dateKey, dayT) {
+  document.querySelector('.day-popover')?.remove();
+  const [y, m, d] = dateKey.split('-').map(Number);
+  const dateLabel = new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  const pop = document.createElement('div');
+  pop.className = 'day-popover';
+  pop.innerHTML = `
+    <div class="day-popover-title">${escapeHtml(dateLabel)} — ${dayT.length} trigger${dayT.length === 1 ? '' : 's'}</div>
+    <ul class="day-popover-list">
+      ${dayT.map(t => {
+        const tt = triggerType(t.type);
+        return `<li data-trigger-id="${escapeHtml(t.id)}">
+          <span class="day-popover-dot" style="background:${tt.color}"></span>
+          <span>${escapeHtml(triggerLabel(t))}${t.time ? ` · ${escapeHtml(t.time)}` : ''}</span>
+          <span class="day-popover-num">${t.intensity != null ? t.intensity : ''}</span>
+        </li>`;
+      }).join('')}
+    </ul>`;
+  document.body.appendChild(pop);
+  const r = anchor.getBoundingClientRect();
+  pop.style.top = `${r.bottom + window.scrollY + 6}px`;
+  pop.style.left = `${Math.min(r.left + window.scrollX, window.innerWidth - 340)}px`;
+  pop.querySelectorAll('[data-trigger-id]').forEach(li => {
+    li.addEventListener('click', () => {
+      const t = triggers.find(x => x.id === li.dataset.triggerId);
+      pop.remove();
+      if (t) openTriggerModal(t);
+    });
+  });
+  setTimeout(() => {
+    const close = (ev) => { if (!pop.contains(ev.target)) { pop.remove(); document.removeEventListener('click', close); } };
+    document.addEventListener('click', close);
+  }, 0);
+}
+
+function setupTriggerModal() {
+  const sel = $('trigger-type');
+  sel.innerHTML = TRIGGER_TYPES.map(t => `<option value="${t.key}">${escapeHtml(t.label)}</option>`).join('');
+  sel.addEventListener('change', () => {
+    $('trigger-custom-wrap').classList.toggle('hidden', sel.value !== 'other');
+  });
+
+  const row = $('trigger-intensity-row');
+  const slider = row.querySelector('input[type="range"]');
+  const val = row.querySelector('.scale-val');
+  slider.addEventListener('input', () => { val.textContent = slider.value; });
+
+  $('trigger-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = $('trigger-id').value;
+    const type = sel.value;
+    const data = {
+      date: $('trigger-date').value || today(),
+      time: $('trigger-time').value || null,
+      type,
+      customLabel: type === 'other' ? ($('trigger-custom').value.trim() || null) : null,
+      intensity: parseInt(slider.value),
+      note: $('trigger-note').value.trim(),
+    };
+    if (id) { await updateTrigger(id, data); showToast('Trigger updated'); }
+    else { await createTrigger(data); showToast('Trigger logged'); }
+    closeModal('trigger-modal');
+  });
+
+  $('trigger-delete-btn').addEventListener('click', async () => {
+    const id = $('trigger-id').value;
+    if (!id) return;
+    if (!confirm('Delete this trigger?')) return;
+    await deleteTrigger(id);
+    closeModal('trigger-modal');
+    showToast('Trigger deleted');
+  });
+}
+
+function openTriggerModal(trigger, dateStr) {
+  if (readOnly) return;
+  const sel = $('trigger-type');
+  const row = $('trigger-intensity-row');
+  const slider = row.querySelector('input[type="range"]');
+
+  $('trigger-modal-title').textContent = trigger ? 'Edit trigger' : 'Log a trigger';
+  $('trigger-id').value = trigger ? trigger.id : '';
+  $('trigger-date').value = trigger ? trigger.date : (dateStr || today());
+  $('trigger-time').value = (trigger && trigger.time) || '';
+  sel.value = trigger ? trigger.type : TRIGGER_TYPES[0].key;
+  $('trigger-custom-wrap').classList.toggle('hidden', sel.value !== 'other');
+  $('trigger-custom').value = (trigger && trigger.customLabel) || '';
+  const iv = (trigger && trigger.intensity != null) ? trigger.intensity : 5;
+  slider.value = iv;
+  row.querySelector('.scale-val').textContent = iv;
+  $('trigger-note').value = (trigger && trigger.note) || '';
+  $('trigger-delete-btn').classList.toggle('hidden', !trigger);
+
+  openModal('trigger-modal');
+}
+
+// ===== Archive =====
+function openArchive() {
+  const list = $('archive-list');
+  const rank = { morning: 0, evening: 1 };
+  const sorted = [...logs].sort((a, b) =>
+    b.date.localeCompare(a.date) || (rank[logPeriod(b)] - rank[logPeriod(a)]));
+
+  if (!sorted.length) {
+    list.innerHTML = `<div class="empty-state">No check-ins yet.</div>`;
+  } else {
+    list.innerHTML = '';
+    sorted.forEach(log => {
+      const card = document.createElement('div');
+      card.className = 'entry-card archive-card';
+      card.innerHTML = buildEntryCardInner(log);
+      if (!readOnly) {
+        card.addEventListener('click', () => { closeModal('archive-modal'); openLogModal(log, logPeriod(log)); });
+      } else {
+        card.style.cursor = 'default';
+      }
+      list.appendChild(card);
+    });
+  }
+  openModal('archive-modal');
+}
+
 // ===== Log modal =====
 function setupLogModal() {
   // Range sliders update value display
@@ -265,6 +536,7 @@ function setupLogModal() {
   $('log-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = $('log-id').value;
+    const period = $('log-period').value || 'evening';
     const emotions = {};
     document.querySelectorAll('#log-form .scale-row').forEach(row => {
       emotions[row.dataset.key] = parseInt(row.querySelector('input[type="range"]').value);
@@ -281,26 +553,27 @@ function setupLogModal() {
     const notes = $('log-notes').value.trim();
     const data = {
       date: today(),
+      period,
       emotions,
       sleep,
       gratitudes,
       notes,
     };
     if (id) {
-      // Preserve the original date when editing
+      // Preserve the original date + period when editing
       const existing = logs.find(l => l.id === id);
-      if (existing) data.date = existing.date;
+      if (existing) { data.date = existing.date; data.period = logPeriod(existing); }
       await updateLog(id, data);
-      showToast('Entry updated');
+      showToast('Check-in updated');
     } else {
-      // If a log for today already exists, edit it instead of creating a duplicate
-      const existing = logs.find(l => l.date === data.date);
+      // If a check-in for this date+period already exists, edit it instead of duplicating
+      const existing = logs.find(l => l.date === data.date && logPeriod(l) === period);
       if (existing) {
         await updateLog(existing.id, data);
-        showToast('Today\'s entry updated');
+        showToast(`${PERIOD_LABEL[period]} check-in updated`);
       } else {
         await createLog(data);
-        showToast('Entry saved');
+        showToast(`${PERIOD_LABEL[period]} check-in saved`);
       }
     }
     closeModal('log-modal');
@@ -316,9 +589,11 @@ function setupLogModal() {
   });
 }
 
-function openLogModal(log) {
+function openLogModal(log, period) {
   if (readOnly) return;
-  $('log-modal-title').textContent = log ? 'Edit entry' : 'Evening reflection';
+  const p = log ? logPeriod(log) : (period || 'evening');
+  $('log-period').value = p;
+  $('log-modal-title').textContent = `${PERIOD_LABEL[p]} check-in`;
   $('log-id').value = log ? log.id : '';
 
   // Scales

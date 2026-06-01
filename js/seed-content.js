@@ -487,6 +487,15 @@ export const EMOTIONS = [
   { key: 'love',         label: 'Love',         color: '#c89494', warm: false, invert: false },
 ];
 
+// Trigger tracker — the recurring sources of negative emotion.
+// Data-driven: add a row here to introduce a new trigger type.
+export const TRIGGER_TYPES = [
+  { key: 'hypochondria', label: 'Hypochondria', color: '#8b6b45' },
+  { key: 'job',          label: 'Job',          color: '#5a6f8b' },
+  { key: 'news',         label: 'News',         color: '#b85a45' },
+  { key: 'other',        label: 'Other',        color: '#9c9388' },
+];
+
 // Topic display labels for the Library
 export const TOPIC_LABELS = {
   anger: 'On anger',

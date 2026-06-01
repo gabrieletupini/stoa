@@ -12,6 +12,7 @@ const ALLOWED_EMAILS = ['gabritupini@gmail.com', 'gabritupini3@gmail.com'];
 // Stoa has its own dedicated Firebase project (stoa-journal-db) so the
 // collection name no longer needs the stoa_ prefix.
 const COL_LOGS = 'moodLogs';
+const COL_TRIGGERS = 'triggers';
 
 let db, auth;
 let syncStatusCallback = null;
@@ -104,5 +105,47 @@ export async function updateLog(id, data) {
 export async function deleteLog(id) {
   emit('syncing');
   await deleteDoc(doc(db, COL_LOGS, id));
+  emit('synced');
+}
+
+// ===== Triggers =====
+export function subscribeToTriggers(callback) {
+  emit('connecting');
+  return onSnapshot(
+    query(collection(db, COL_TRIGGERS), orderBy('date', 'desc')),
+    (snap) => {
+      emit('synced');
+      callback(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    },
+    (err) => {
+      console.error('subscribeToTriggers', err);
+      emit('error');
+    }
+  );
+}
+
+export async function createTrigger(data) {
+  emit('syncing');
+  const ref = await addDoc(collection(db, COL_TRIGGERS), {
+    ...data,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  emit('synced');
+  return ref.id;
+}
+
+export async function updateTrigger(id, data) {
+  emit('syncing');
+  await updateDoc(doc(db, COL_TRIGGERS, id), {
+    ...data,
+    updatedAt: serverTimestamp(),
+  });
+  emit('synced');
+}
+
+export async function deleteTrigger(id) {
+  emit('syncing');
+  await deleteDoc(doc(db, COL_TRIGGERS, id));
   emit('synced');
 }

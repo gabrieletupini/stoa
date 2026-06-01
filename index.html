@@ -58,14 +58,41 @@
         <h2 class="section-title" id="today-date"></h2>
         <p class="section-sub" id="today-greet">How was your day?</p>
       </div>
-      <button id="open-log-btn" class="btn-primary edit-only">+ New entry</button>
     </div>
 
-    <div id="today-log-card" class="entry-card hidden"></div>
+    <section class="block">
+      <h3 class="block-title">Today's check-ins</h3>
+      <p class="block-sub">Overall mental health across the last seven days — once in the morning, once in the evening.</p>
+      <div id="checkin-slots" class="checkin-slots">
+        <div class="checkin-slot" data-period="morning">
+          <div class="checkin-slot-label">Morning</div>
+          <div id="checkin-morning" class="checkin-body"></div>
+        </div>
+        <div class="checkin-slot" data-period="evening">
+          <div class="checkin-slot-label">Evening</div>
+          <div id="checkin-evening" class="checkin-body"></div>
+        </div>
+      </div>
+    </section>
 
     <section class="block">
       <h3 class="block-title">Last seven days</h3>
       <div id="week-strip" class="week-strip"></div>
+      <div class="week-legend">
+        <span><span class="week-legend-dot am"></span> morning</span>
+        <span><span class="week-legend-dot pm"></span> evening</span>
+        <a href="#" id="open-archive" class="week-archive-link edit-only">View full archive →</a>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="trigger-head">
+        <h3 class="block-title">Trigger tracker</h3>
+        <button id="open-trigger-btn" class="btn-secondary edit-only">+ Log trigger</button>
+      </div>
+      <p class="block-sub">Each negative-emotion trigger, by the day and time it hit. Click a day to log one.</p>
+      <div class="trigger-legend" id="trigger-legend"></div>
+      <div id="trigger-calendar" class="trigger-calendar"></div>
     </section>
 
     <section class="block">
@@ -134,14 +161,15 @@
 <div id="log-modal" class="modal" data-modal="log-modal">
   <div class="modal-content modal-large">
     <button class="modal-close" data-close>×</button>
-    <h3 id="log-modal-title">Evening reflection</h3>
-    <p class="modal-sub">Move each scale toward where you actually feel — not where you'd like to be.</p>
+    <h3 id="log-modal-title">Evening check-in</h3>
+    <p class="modal-sub">Rate your overall mental health across the last seven days — where you actually are, not where you'd like to be.</p>
 
     <form id="log-form" class="form">
       <input type="hidden" id="log-id">
+      <input type="hidden" id="log-period" value="evening">
 
       <fieldset class="scales">
-        <legend>Emotions today</legend>
+        <legend>Emotions, last seven days</legend>
         <div class="scale-row" data-key="anger"><span class="scale-label">Anger · ira</span><input type="range" min="0" max="10" value="0"><span class="scale-val">0</span></div>
         <div class="scale-row" data-key="sadness"><span class="scale-label">Sadness · tristezza</span><input type="range" min="0" max="10" value="0"><span class="scale-val">0</span></div>
         <div class="scale-row" data-key="anxiety"><span class="scale-label">Anxiety · ansia</span><input type="range" min="0" max="10" value="0"><span class="scale-val">0</span></div>
@@ -174,6 +202,56 @@
         <button type="submit" class="btn-primary">Save</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Trigger modal -->
+<div id="trigger-modal" class="modal" data-modal="trigger-modal">
+  <div class="modal-content">
+    <button class="modal-close" data-close>×</button>
+    <h3 id="trigger-modal-title">Log a trigger</h3>
+    <p class="modal-sub">Name the trigger, when it hit, and how strong the reaction was.</p>
+
+    <form id="trigger-form" class="form">
+      <input type="hidden" id="trigger-id">
+
+      <div class="form-row">
+        <label class="flex-1">Date<input type="date" id="trigger-date"></label>
+        <label>Time<input type="time" id="trigger-time"></label>
+      </div>
+
+      <label>Trigger
+        <select id="trigger-type"></select>
+      </label>
+
+      <label id="trigger-custom-wrap" class="hidden">What was it
+        <input type="text" id="trigger-custom" placeholder="Name this trigger">
+      </label>
+
+      <fieldset class="scales">
+        <legend>Intensity</legend>
+        <div class="scale-row warm" id="trigger-intensity-row"><span class="scale-label">How strong</span><input type="range" min="0" max="10" value="5"><span class="scale-val">5</span></div>
+      </fieldset>
+
+      <label>Note <span class="hint">(optional — what set it off, what helped)</span>
+        <textarea id="trigger-note" rows="4" placeholder="Where you were, the thought, what calmed it…"></textarea>
+      </label>
+
+      <div class="form-actions">
+        <button type="button" id="trigger-delete-btn" class="btn-danger hidden">Delete</button>
+        <button type="submit" class="btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Archive modal -->
+<div id="archive-modal" class="modal" data-modal="archive-modal">
+  <div class="modal-content modal-large">
+    <button class="modal-close" data-close>×</button>
+    <h3>Check-in archive</h3>
+    <p class="modal-sub">Every morning and evening check-in, newest first.</p>
+    <div id="archive-list" class="archive-list"></div>
   </div>
 </div>
 

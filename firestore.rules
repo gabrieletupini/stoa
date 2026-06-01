@@ -24,6 +24,12 @@ service cloud.firestore {
       allow write: if isAuthorized();
     }
 
+    // Trigger tracker — eventi che scatenano emozioni negative
+    match /triggers/{triggerId} {
+      allow read: if true;
+      allow write: if isAuthorized();
+    }
+
     // Tutto il resto bloccato di default
     match /{document=**} {
       allow read, write: if false;
