@@ -1,0 +1,20 @@
+// Standalone long-form readings — one self-contained HTML file each under
+// /studies/<theme>/<name>.html, so each opens in a new tab and downloads as a
+// complete document (same pattern as the life-lessons pickup studies).
+//
+// A trigger references readings via a `studyIds` array on its Firestore doc.
+// `triggerTypes` decides which triggers suggest the reading in the log modal:
+// an empty array means "general" — it surfaces for every trigger type.
+
+export const STUDIES = [
+  {
+    id: 'anger-anatomy',
+    title: 'The Anatomy of Anger',
+    excerpt:
+      'Why venting pours fuel on the fire, how anger is a grab for control we never had, the poison we drink ourselves — and how long the stress hormone actually lingers after a single trigger.',
+    readingMinutes: 9,
+    file: 'studies/anger/the-anatomy-of-anger.html',
+    publishedAt: '2026-06-01',
+    triggerTypes: [], // general — relevant to job, news, hypochondria alike
+  },
+];

@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The Anatomy of Anger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #14110f;
+    --paper: #f4ede1;
+    --paper-2: #ebe0cd;
+    --accent: #b8412e;     /* anger — terracotta */
+    --accent-2: #6b8460;   /* control — sage */
+    --muted: #6b6155;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Fraunces", Georgia, serif;
+    line-height: 1.6;
+    font-size: 19px;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(rgba(20,17,15,0.04) 1px, transparent 1px);
+    background-size: 4px 4px;
+    mix-blend-mode: multiply;
+    z-index: 1;
+  }
+  .wrap { position: relative; z-index: 2; max-width: 680px; margin: 0 auto; padding: 10vh 6vw; }
+
+  .kicker {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  h1 {
+    font-family: "Fraunces", serif;
+    font-weight: 300;
+    font-size: clamp(40px, 7vw, 76px);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    margin: 0 0 2.5rem;
+  }
+  h1 em { font-style: italic; color: var(--accent); font-weight: 400; }
+
+  .lede {
+    font-size: 22px;
+    line-height: 1.5;
+    color: #2a2520;
+    margin: 0 0 4rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(20,17,15,0.15);
+  }
+
+  h2 {
+    font-family: "Fraunces", serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(26px, 3.5vw, 36px);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    margin: 3.5rem 0 1.2rem;
+    max-width: 26ch;
+  }
+  .num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.6rem;
+  }
+  p { margin: 0 0 1.2rem; }
+  p strong { font-weight: 600; }
+  .src {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12.5px;
+    color: var(--muted);
+    letter-spacing: 0.01em;
+  }
+
+  /* Chart */
+  .chart-wrap { margin: 2.5rem 0 3rem; }
+  .chart {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background:
+      repeating-linear-gradient(to bottom,
+        transparent 0, transparent 23px,
+        rgba(107, 132, 96, 0.28) 23px, rgba(107, 132, 96, 0.28) 24px),
+      var(--paper-2);
+    border: 1px solid rgba(20,17,15,0.15);
+    position: relative;
+    overflow: hidden;
+  }
+  .chart svg { width: 100%; height: 100%; display: block; }
+  .chart .axis-line { stroke: var(--ink); stroke-width: 1.5; }
+  .chart .threshold { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 6 4; opacity: 0.6; }
+  .chart .line { fill: none; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+  .line-adr { stroke: var(--accent-2); }
+  .line-cort { stroke: var(--accent); }
+  .line-rum { stroke: var(--ink); stroke-width: 2; stroke-dasharray: 5 4; opacity: 0.75; }
+  .chart-label { font-family: "Fraunces", serif; font-style: italic; font-size: 15px; }
+  .chart-mono {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    fill: var(--muted);
+  }
+  .legend {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.8rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 0.5rem; }
+  .legend span::before { content: ""; width: 18px; height: 3px; border-radius: 2px; }
+  .legend .l-adr::before { background: var(--accent-2); }
+  .legend .l-cort::before { background: var(--accent); }
+  .legend .l-rum::before { background: var(--ink); opacity: 0.7; }
+  .chart-caption {
+    margin-top: 1rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Stat row */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin: 2.5rem 0;
+  }
+  @media (max-width: 640px) { .stats { grid-template-columns: 1fr; } }
+  .stat { border-top: 2px solid var(--ink); padding-top: 0.9rem; }
+  .stat .n {
+    font-family: "Fraunces", serif;
+    font-weight: 300;
+    font-size: 40px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+  .stat .k {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .stat p { font-size: 15px; line-height: 1.5; margin: 0; color: #2a2520; }
+
+  .pull {
+    margin: 4rem 0;
+    padding: 2.5rem;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 2px;
+  }
+  .pull blockquote {
+    margin: 0;
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(22px, 3vw, 28px);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+  .pull blockquote::before {
+    content: "“";
+    color: var(--accent);
+    font-size: 1.4em;
+    line-height: 0;
+    vertical-align: -0.3em;
+    margin-right: 0.05em;
+  }
+
+  .three {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 2rem;
+    margin: 3rem 0;
+  }
+  @media (max-width: 640px) { .three { grid-template-columns: 1fr; } }
+  .word { border-top: 2px solid var(--ink); padding-top: 1rem; }
+  .word .label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+  .word h3 {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 23px;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.01em;
+  }
+  .word p { font-size: 15.5px; line-height: 1.5; margin: 0; color: #2a2520; }
+
+  .summary {
+    margin: 3rem 0 1rem;
+    padding: 1.8rem 2rem;
+    border: 1px solid rgba(20,17,15,0.2);
+    background: rgba(255,255,255,0.3);
+  }
+  .summary p { margin: 0; font-size: 17px; line-height: 1.9; }
+
+  .end {
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(20,17,15,0.15);
+  }
+  .end .label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .end ul { margin: 0; padding-left: 1.1rem; }
+  .end li { font-size: 14px; line-height: 1.7; color: var(--muted); margin-bottom: 0.3rem; }
+  .fin {
+    margin-top: 2.5rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">Short essay · on anger</div>
+  <h1>Anger is a fire<br>you light <em>in your own house.</em></h1>
+
+  <p class="lede">
+    Anger feels like power aimed outward — at the boss, the headline, the body that won't behave. It is almost always the opposite: combustion turned inward, paid for by the one who lit it. Four things worth knowing before the next time the match strikes.
+  </p>
+
+  <span class="num">I.</span>
+  <h2>Venting is the igniter, not the extinguisher.</h2>
+  <p>
+    The folk theory is hydraulic: anger is pressure in a boiler, and if you don't "let it out" it will burst. Freud half-believed it; Konrad Lorenz built a whole model of aggression on it. It feels true. It is, as far as the evidence goes, wrong.
+  </p>
+  <p>
+    When Brad Bushman put it to the test, people who vented — hitting a punching bag while picturing the person who had angered them — went on to behave <strong>more</strong> aggressively afterward, not less. The ones who simply sat with it, or were distracted, cooled down faster. <span class="src">(Bushman, 2002, <em>Pers. Soc. Psychol. Bull.</em>)</span>
+  </p>
+  <p>
+    The reason is plain once you see it. Expressing rage is not draining a tank; it is <strong>rehearsal.</strong> Every shout, every replayed grievance, every imagined comeback runs the circuit again and lays the wire down thicker. Catharsis doesn't discharge the anger. It practices it. You don't empty the boiler — you widen the pipe so it fills faster next time.
+  </p>
+
+  <span class="num">II.</span>
+  <h2>Underneath the anger is a demand for control you don't have.</h2>
+  <p>
+    Look closely at the moment of fury and you'll find a collision: what <em>is</em>, slamming into what you had decided <em>ought to be.</em> Your boss changed his mind. The news did what the news does. The symptom appeared. None of these asked your permission — and the anger is precisely the refusal to accept that they didn't have to.
+  </p>
+  <p>
+    Epictetus drew the only line that matters: some things are up to us — our judgments, our chosen response — and most things are not — other people, outcomes, the past, the next hour. <strong>Anger is the attempt to force the second category to obey the rules of the first.</strong> It is a grab at a steering wheel that was never connected to the wheels.
+  </p>
+  <p>
+    Notice the proportions: the heat of the anger is the exact size of the gap between your demand and reality. Shrink the demand — "I would have preferred it; I did not require it" — and the fire has nothing left to burn. <span class="src">(Epictetus, <em>Enchiridion</em> 1 &amp; 5; Marcus Aurelius, <em>Meditations</em>.)</span>
+  </p>
+
+  <span class="num">III.</span>
+  <h2>It is poison you drink yourself.</h2>
+  <p>
+    The old line — passed around under the Buddha's name and a dozen others — is more literal than it sounds: <em>holding onto anger is like grasping a hot coal to throw at someone else; you are the one who gets burned.</em> Or, in the blunter version, resentment is drinking poison and waiting for the other person to die.
+  </p>
+  <p>
+    The person who triggered you may have forgotten by lunch. They may never know. But your heart rate knew, your blood pressure knew, your sleep that night will know, and your gut will know by morning. You measured out the dose and you swallowed it. The target is almost never in the room.
+  </p>
+
+  <span class="num">IV.</span>
+  <h2>The body keeps the clock — and rumination resets it.</h2>
+  <p>
+    A trigger fires two systems on two timescales. The fast one — the sympathetic-adrenal axis — dumps <strong>adrenaline</strong> in seconds: the heat, the pounding chest, the narrowed vision. Once the threat passes, it clears within a few minutes.
+  </p>
+  <p>
+    The slow one is the HPA axis — hypothalamus to pituitary to adrenal gland — and it releases <strong>cortisol.</strong> Cortisol climbs over minutes and typically <strong>peaks around 15–30 minutes after the trigger</strong>, then takes roughly <strong>60–90 minutes to drift back toward baseline</strong>, even when the event itself lasted ten seconds. <span class="src">(Dickerson &amp; Kemeny, 2004, meta-analysis of acute stressors; Sapolsky, <em>Why Zebras Don't Get Ulcers</em>.)</span>
+  </p>
+
+  <div class="chart-wrap">
+    <div class="chart">
+      <svg viewBox="0 0 800 380" preserveAspectRatio="none" aria-label="Stress hormones over time after a single trigger">
+        <line class="axis-line" x1="40" y1="30" x2="40" y2="350" />
+        <line class="axis-line" x1="40" y1="350" x2="780" y2="350" />
+        <line class="threshold" x1="40" y1="332" x2="780" y2="332" />
+        <text class="chart-mono" x="48" y="326">resting baseline</text>
+        <text class="chart-mono" x="48" y="24">high</text>
+        <text class="chart-mono" x="775" y="370" text-anchor="end">time after trigger →</text>
+        <text class="chart-mono" x="44" y="368">0</text>
+        <text class="chart-mono" x="163" y="368" text-anchor="middle">20m</text>
+        <text class="chart-mono" x="410" y="368" text-anchor="middle">60m</text>
+        <text class="chart-mono" x="595" y="368" text-anchor="middle">90m</text>
+        <!-- adrenaline: instant spike, fast clear -->
+        <path class="line line-adr" d="M 40 330 L 48 80 L 70 70 L 120 240 L 175 312 L 300 330 L 780 332" />
+        <!-- cortisol: slow rise, peak ~20m, slow decay ~90m -->
+        <path class="line line-cort" d="M 40 322 L 90 235 L 130 135 L 163 92 L 230 130 L 320 195 L 430 260 L 520 305 L 595 322 L 780 326" />
+        <!-- rumination: cortisol re-spiked, never comes down -->
+        <path class="line line-rum" d="M 40 322 L 130 120 L 210 175 L 260 100 L 350 168 L 420 105 L 510 165 L 590 100 L 680 158 L 760 110 L 780 120" />
+        <text class="chart-label" x="120" y="58" fill="#6b8460">adrenaline</text>
+        <text class="chart-label" x="172" y="84" fill="#b8412e">cortisol</text>
+        <text class="chart-label" x="640" y="96" fill="#14110f">+ rumination</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <span class="l-adr">adrenaline · seconds → minutes</span>
+      <span class="l-cort">cortisol · peak ~20m, ~60–90m to clear</span>
+      <span class="l-rum">if you keep replaying it</span>
+    </div>
+    <p class="chart-caption">
+      The trigger ends in seconds. The cortisol curve runs for the better part of an hour on its own. But each time you replay the scene, you press the button again — the dashed line is a two-second event stretched into an afternoon. This is point I made chemical: rumination doesn't release the anger, it re-doses it.
+    </p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n">~secs</div><div class="k">adrenaline hits</div><p>Heart, heat, tunnel vision — within seconds of the trigger; gone a few minutes after it passes.</p></div>
+    <div class="stat"><div class="n">~20m</div><div class="k">cortisol peak</div><p>The slow hormone crests roughly fifteen to thirty minutes <em>after</em> the moment is already over.</p></div>
+    <div class="stat"><div class="n">60–90m</div><div class="k">to baseline</div><p>How long a single, un-rehearsed trigger keeps the body chemically lit. Rumination restarts the count.</p></div>
+  </div>
+
+  <div class="pull">
+    <blockquote>
+      The trigger lasts seconds. The chemistry lasts an hour. The story you keep telling about it can last all day — and that last part is the only part you control.
+    </blockquote>
+  </div>
+
+  <span class="num">V.</span>
+  <h2>So, the practice.</h2>
+
+  <div class="three">
+    <div class="word">
+      <div class="label">One</div>
+      <h3>Name it as data</h3>
+      <p>Anger is information: a demand of yours just met a reality that didn't comply. Read the message — then don't let it generalise into a verdict about the world.</p>
+    </div>
+    <div class="word">
+      <div class="label">Two</div>
+      <h3>Don't vent — interrupt</h3>
+      <p>Expression rehearses; it doesn't release. Change the channel: move the body, change the room, label the feeling. Distraction beats catharsis, every trial.</p>
+    </div>
+    <div class="word">
+      <div class="label">Three</div>
+      <h3>Find the line of control</h3>
+      <p>Ask of the thing: is any of this actually up to me? Act there, exactly there — and let the rest be what it already is, with or without your permission.</p>
+    </div>
+    <div class="word">
+      <div class="label">Four</div>
+      <h3>Wait out the clock</h3>
+      <p>Don't decide or speak at the peak. Give it the twenty minutes the chemistry needs to crest and start falling. The same words land differently on the way down.</p>
+    </div>
+  </div>
+
+  <div class="summary">
+    <p>
+      Venting: <strong>feeds the fire.</strong><br>
+      Anger: <strong>a grab for control you were never given.</strong><br>
+      Holding it: <strong>poison you drink yourself.</strong><br>
+      The body: <strong>carries it for an hour — longer if you keep relighting it.</strong><br>
+      The only move that helps: <strong>notice, interrupt, locate control, and wait.</strong>
+    </p>
+  </div>
+
+  <div class="end">
+    <div class="label">Further reading</div>
+    <ul>
+      <li>Bushman, B. J. (2002). <em>Does venting anger feed or extinguish the flame? Catharsis, rumination, distraction, anger, and aggressive responding.</em> Personality and Social Psychology Bulletin, 28(6).</li>
+      <li>Dickerson, S. S., &amp; Kemeny, M. E. (2004). <em>Acute stressors and cortisol responses: a theoretical integration and synthesis of laboratory research.</em> Psychological Bulletin, 130(3).</li>
+      <li>Sapolsky, R. M. <em>Why Zebras Don't Get Ulcers.</em> (HPA axis, cortisol kinetics, recovery.)</li>
+      <li>Epictetus, <em>Enchiridion</em>; Marcus Aurelius, <em>Meditations</em>; Seneca, <em>De Ira</em>. (The dichotomy of control, and anger as a chosen judgment.)</li>
+    </ul>
+    <p class="fin">— end</p>
+  </div>
+
+</div>
+</body>
+</html>

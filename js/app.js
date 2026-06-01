@@ -4,6 +4,7 @@ import {
   subscribeToTriggers, createTrigger, updateTrigger, deleteTrigger,
 } from './firebase.js';
 import { PROTOCOLS, ARTICLES, QUOTES, EMOTIONS, TOPIC_LABELS, TRIGGER_TYPES } from './seed-content.js';
+import { STUDIES } from './studies.js';
 
 // ===== State =====
 let logs = [];
@@ -19,6 +20,8 @@ let calendarMonth = _now.getMonth();
 const PERIODS = ['morning', 'evening'];
 const PERIOD_LABEL = { morning: 'Morning', evening: 'Evening' };
 const logPeriod = (log) => (log && log.period) || 'evening';
+
+let editingStudyIds = []; // study ids checked in the open trigger modal
 
 // ===== DOM helpers =====
 const $ = (id) => document.getElementById(id);
@@ -118,6 +121,7 @@ function startApp() {
   });
 
   renderTriggerLegend();
+  renderTriggerStudies();
   renderProtocols();
   renderLibrary();
   renderDailyQuote();
@@ -313,6 +317,64 @@ function renderTriggerLegend() {
   ).join('');
 }
 
+// ===== Readings (studies) =====
+const studyById = (id) => STUDIES.find(s => s.id === id);
+const studiesForTrigger = (type) =>
+  STUDIES.filter(s => !s.triggerTypes || s.triggerTypes.length === 0 || s.triggerTypes.includes(type));
+
+function studyFilename(s) {
+  return s.file.split('/').pop();
+}
+
+function renderTriggerStudies() {
+  const el = $('trigger-studies');
+  if (!el) return;
+  if (!STUDIES.length) { el.innerHTML = ''; return; }
+  const cards = STUDIES.map(s => `
+    <div class="study-card">
+      <div class="study-card-row">
+        <div class="study-card-info">
+          <div class="study-card-title">${escapeHtml(s.title)}</div>
+          <div class="study-card-excerpt">${escapeHtml(s.excerpt)}</div>
+          <div class="study-card-meta">${s.readingMinutes} min · ${escapeHtml(s.publishedAt || '')}</div>
+        </div>
+        <div class="study-card-actions">
+          <a class="study-btn study-btn-view" href="${s.file}" target="_blank" rel="noopener">Read →</a>
+          <a class="study-btn study-btn-download" href="${s.file}" download="${escapeHtml(studyFilename(s))}">⬇ Download</a>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  el.innerHTML = `<div class="trigger-studies-title">Readings</div>${cards}`;
+}
+
+function refreshTriggerStudiesPicker(type) {
+  const labelEl = $('trigger-studies-label');
+  const pickerEl = $('trigger-studies-picker');
+  if (!labelEl || !pickerEl) return;
+  const items = studiesForTrigger(type);
+  if (items.length === 0) {
+    labelEl.classList.add('hidden');
+    pickerEl.innerHTML = '';
+    return;
+  }
+  labelEl.classList.remove('hidden');
+  pickerEl.innerHTML = items.map(s => {
+    const checked = editingStudyIds.includes(s.id);
+    return `
+      <label class="studies-picker-row${checked ? ' checked' : ''}">
+        <input type="checkbox" value="${s.id}"${checked ? ' checked' : ''}>
+        <span>${escapeHtml(s.title)} <span class="studies-picker-meta">${s.readingMinutes} min</span></span>
+      </label>`;
+  }).join('');
+  pickerEl.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.closest('.studies-picker-row').classList.toggle('checked', cb.checked);
+      editingStudyIds = [...pickerEl.querySelectorAll('input:checked')].map(c => c.value);
+    });
+  });
+}
+
 function renderTriggerCalendar() {
   const cal = $('trigger-calendar');
   if (!cal) return;
@@ -340,8 +402,9 @@ function renderTriggerCalendar() {
     const chips = dayT.slice(0, 3).map(t => {
       const tt = triggerType(t.type);
       const intensity = (t.intensity != null) ? `<span class="cal-chip-intensity">${t.intensity}</span>` : '';
+      const clip = (t.studyIds && t.studyIds.length) ? '<span class="cal-chip-clip">📎</span>' : '';
       const title = triggerLabel(t) + (t.time ? ` · ${t.time}` : '');
-      return `<div class="cal-chip" data-trigger-id="${escapeHtml(t.id)}" style="border-left-color:${tt.color}" title="${escapeHtml(title)}">${intensity}${escapeHtml(triggerLabel(t))}</div>`;
+      return `<div class="cal-chip" data-trigger-id="${escapeHtml(t.id)}" style="border-left-color:${tt.color}" title="${escapeHtml(title)}">${intensity}<span class="cal-chip-label">${escapeHtml(triggerLabel(t))}</span>${clip}</div>`;
     }).join('');
     const more = dayT.length > 3 ? `<div class="cal-more" data-date="${key}">+${dayT.length - 3} more</div>` : '';
     cells.push(`<div class="cal-day${isToday ? ' cal-day-today' : ''}${dayT.length ? ' cal-day-has' : ''}" data-date="${key}"><div class="cal-day-num">${d}</div>${chips}${more}</div>`);
@@ -405,10 +468,19 @@ function showTriggerDayPopover(anchor, dateKey, dayT) {
     <ul class="day-popover-list">
       ${dayT.map(t => {
         const tt = triggerType(t.type);
+        const reads = (t.studyIds || []).map(studyById).filter(Boolean);
+        const readsHtml = reads.length
+          ? `<div class="day-popover-reads">${reads.map(s =>
+              `<a class="day-popover-read" href="${s.file}" target="_blank" rel="noopener">📎 ${escapeHtml(s.title)}</a>`
+            ).join('')}</div>`
+          : '';
         return `<li data-trigger-id="${escapeHtml(t.id)}">
-          <span class="day-popover-dot" style="background:${tt.color}"></span>
-          <span>${escapeHtml(triggerLabel(t))}${t.time ? ` · ${escapeHtml(t.time)}` : ''}</span>
-          <span class="day-popover-num">${t.intensity != null ? t.intensity : ''}</span>
+          <div class="day-popover-main">
+            <span class="day-popover-dot" style="background:${tt.color}"></span>
+            <span>${escapeHtml(triggerLabel(t))}${t.time ? ` · ${escapeHtml(t.time)}` : ''}</span>
+            <span class="day-popover-num">${t.intensity != null ? t.intensity : ''}</span>
+          </div>
+          ${readsHtml}
         </li>`;
       }).join('')}
     </ul>`;
@@ -417,7 +489,8 @@ function showTriggerDayPopover(anchor, dateKey, dayT) {
   pop.style.top = `${r.bottom + window.scrollY + 6}px`;
   pop.style.left = `${Math.min(r.left + window.scrollX, window.innerWidth - 340)}px`;
   pop.querySelectorAll('[data-trigger-id]').forEach(li => {
-    li.addEventListener('click', () => {
+    li.addEventListener('click', (e) => {
+      if (e.target.closest('.day-popover-read')) return; // let reading links open
       const t = triggers.find(x => x.id === li.dataset.triggerId);
       pop.remove();
       if (t) openTriggerModal(t);
@@ -434,6 +507,7 @@ function setupTriggerModal() {
   sel.innerHTML = TRIGGER_TYPES.map(t => `<option value="${t.key}">${escapeHtml(t.label)}</option>`).join('');
   sel.addEventListener('change', () => {
     $('trigger-custom-wrap').classList.toggle('hidden', sel.value !== 'other');
+    refreshTriggerStudiesPicker(sel.value);
   });
 
   const row = $('trigger-intensity-row');
@@ -452,6 +526,7 @@ function setupTriggerModal() {
       customLabel: type === 'other' ? ($('trigger-custom').value.trim() || null) : null,
       intensity: parseInt(slider.value),
       note: $('trigger-note').value.trim(),
+      studyIds: [...editingStudyIds],
     };
     if (id) { await updateTrigger(id, data); showToast('Trigger updated'); }
     else { await createTrigger(data); showToast('Trigger logged'); }
@@ -486,6 +561,9 @@ function openTriggerModal(trigger, dateStr) {
   row.querySelector('.scale-val').textContent = iv;
   $('trigger-note').value = (trigger && trigger.note) || '';
   $('trigger-delete-btn').classList.toggle('hidden', !trigger);
+
+  editingStudyIds = (trigger && trigger.studyIds) ? [...trigger.studyIds] : [];
+  refreshTriggerStudiesPicker(sel.value);
 
   openModal('trigger-modal');
 }

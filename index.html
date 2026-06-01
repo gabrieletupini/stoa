@@ -91,6 +91,7 @@
         <button id="open-trigger-btn" class="btn-secondary edit-only">+ Log trigger</button>
       </div>
       <p class="block-sub">Each negative-emotion trigger, by the day and time it hit. Click a day to log one.</p>
+      <div id="trigger-studies" class="trigger-studies"></div>
       <div class="trigger-legend" id="trigger-legend"></div>
       <div id="trigger-calendar" class="trigger-calendar"></div>
     </section>
@@ -235,6 +236,10 @@
 
       <label>Note <span class="hint">(optional — what set it off, what helped)</span>
         <textarea id="trigger-note" rows="4" placeholder="Where you were, the thought, what calmed it…"></textarea>
+      </label>
+
+      <label id="trigger-studies-label" class="hidden">Linked readings <span class="hint">(attach an essay to this trigger)</span>
+        <div id="trigger-studies-picker" class="studies-picker"></div>
       </label>
 
       <div class="form-actions">
