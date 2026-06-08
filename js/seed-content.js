@@ -479,12 +479,13 @@ export const QUOTES = [
 
 // ===== Emotion catalog (for charts and labels) =====
 export const EMOTIONS = [
-  { key: 'anger',        label: 'Anger',        color: '#b85a45', warm: true,  invert: true },
-  { key: 'sadness',      label: 'Sadness',      color: '#5a6f8b', warm: true,  invert: true },
-  { key: 'anxiety',      label: 'Anxiety',      color: '#a17a4a', warm: true,  invert: true },
-  { key: 'hypochondria', label: 'Hypochondria', color: '#8b6b45', warm: true,  invert: true },
-  { key: 'serenity',     label: 'Serenity',     color: '#87a07b', warm: false, invert: false },
-  { key: 'love',         label: 'Love',         color: '#c89494', warm: false, invert: false },
+  { key: 'anger',           label: 'Anger',            color: '#b85a45', warm: true,  invert: true },
+  { key: 'angerPropensity', label: 'Anger fuse',        color: '#d08251', warm: true,  invert: true },
+  { key: 'sadness',         label: 'Sadness',          color: '#5a6f8b', warm: true,  invert: true },
+  { key: 'anxiety',         label: 'Anxiety',          color: '#a17a4a', warm: true,  invert: true },
+  { key: 'hypochondria',    label: 'Hypochondria',     color: '#8b6b45', warm: true,  invert: true },
+  { key: 'serenity',        label: 'Serenity',         color: '#87a07b', warm: false, invert: false },
+  { key: 'love',            label: 'Love',             color: '#c89494', warm: false, invert: false },
 ];
 
 // Trigger tracker — the recurring sources of negative emotion.

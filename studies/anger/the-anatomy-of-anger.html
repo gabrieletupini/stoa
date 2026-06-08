@@ -231,6 +231,89 @@
   }
   .summary p { margin: 0; font-size: 17px; line-height: 1.9; }
 
+  /* Protocol */
+  .protocol {
+    margin: 2rem 0 3rem;
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid rgba(20,17,15,0.12);
+    align-items: baseline;
+  }
+  .step:first-child { border-top: none; }
+  .step .time {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+    padding-top: 0.35rem;
+  }
+  .step h3 {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 22px;
+    margin: 0 0 0.55rem;
+    letter-spacing: -0.01em;
+  }
+  .step h3 .order {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    margin-right: 0.7em;
+    vertical-align: 0.18em;
+  }
+  .step p { font-size: 16px; line-height: 1.55; margin: 0; color: #2a2520; }
+  .step .cue {
+    display: block;
+    margin-top: 0.7rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  .step .cue::before { content: "→ "; color: var(--accent); }
+  @media (max-width: 640px) {
+    .step { grid-template-columns: 1fr; gap: 0.4rem; padding: 1.3rem 0; }
+    .step .time { padding-top: 0; }
+  }
+
+  /* Morning armor list */
+  .armor {
+    margin: 2rem 0;
+    list-style: none;
+    padding: 0;
+  }
+  .armor li {
+    border-top: 1px solid rgba(20,17,15,0.15);
+    padding: 1rem 0 1rem 2.5rem;
+    position: relative;
+    font-size: 16.5px;
+    line-height: 1.55;
+  }
+  .armor li:last-child { border-bottom: 1px solid rgba(20,17,15,0.15); }
+  .armor li::before {
+    content: "✦";
+    position: absolute;
+    left: 0;
+    top: 1rem;
+    color: var(--accent);
+    font-size: 14px;
+  }
+  .armor li strong {
+    display: block;
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 17px;
+    margin-bottom: 0.25rem;
+  }
+
   .end {
     margin-top: 5rem;
     padding-top: 2rem;
@@ -288,6 +371,9 @@
   </p>
   <p>
     Notice the proportions: the heat of the anger is the exact size of the gap between your demand and reality. Shrink the demand — "I would have preferred it; I did not require it" — and the fire has nothing left to burn. <span class="src">(Epictetus, <em>Enchiridion</em> 1 &amp; 5; Marcus Aurelius, <em>Meditations</em>.)</span>
+  </p>
+  <p>
+    And yet the heat <em>feels</em> like power. That is the trick of it: the adrenaline, the volume, the sense of bending the room by sheer pressure — anger sells itself as command. It is almost always the cheaper substitute. The same outcomes — the person heard, the line held, the decision made — land harder from a smile and a low, settled voice. Marcus ran an empire from that register; Seneca counselled emperors from it. Rage narrows the field of what you can do next; <strong>fierce calm widens it.</strong> The voice that does not need to raise itself is the one people actually obey. The real power is the one that doesn't have to burn anything down to be felt — and in that calm, not in the fire, is where it actually lives.
   </p>
 
   <span class="num">III.</span>
@@ -380,13 +466,102 @@
     </div>
   </div>
 
+  <span class="num">VI.</span>
+  <h2>A protocol — bring the body back.</h2>
+  <p>
+    Section V is the philosophy. This is the routine: a fixed sequence to run the moment you feel the heat rise. The point isn't to suppress the feeling — it's to stop pressing the button so the cortisol curve from section IV can fall on schedule. Done in order, it lines up with the chemistry: physical first, then cognitive, then perspective.
+  </p>
+
+  <div class="protocol">
+
+    <div class="step">
+      <div class="time">00:00 — 02:00</div>
+      <div>
+        <h3><span class="order">01</span>Breath</h3>
+        <p>Before anything else, talk to the body. Two physiological sighs: double inhale through the nose, long exhale through the mouth. Then settle into a slow cadence — four in, six out — for about a minute. This is the only step that downshifts the nervous system directly; every step after it works better because of it.</p>
+        <span class="cue">Down-regulate before deciding anything.</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="time">02:00 — 05:00</div>
+      <div>
+        <h3><span class="order">02</span>Patience</h3>
+        <p>The curve is already running and you cannot argue with it; you can only refuse to feed it. Do not decide, do not write, do not speak to the person. Whatever feels urgent is the chemistry talking, not the situation. Twenty minutes is a short price for the rest of the day.</p>
+        <span class="cue">Let the clock run.</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="time">05:00 — 08:00</div>
+      <div>
+        <h3><span class="order">03</span>Forgiveness</h3>
+        <p>Not as a favour to them — as a release for you. They may have forgotten. They may not know. The grudge belongs to you alone, and it's the only thing still being held. Set it down. Not because they earned it, but because carrying it costs you the next hour of your life.</p>
+        <span class="cue">Drop the coal.</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="time">08:00 — 12:00</div>
+      <div>
+        <h3><span class="order">04</span>Gratitude</h3>
+        <p>Three things, named out loud or silently — but specific. Not "my health"; the chair under you, the light on the wall, a person you love whose name you can say. Gratitude doesn't deny the trigger; it widens the frame so the trigger stops being the whole picture.</p>
+        <span class="cue">Name three real things.</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="time">12:00 — 18:00</div>
+      <div>
+        <h3><span class="order">05</span>Meditation</h3>
+        <p>Five minutes. Eyes closed, attention on the breath at the nostrils. The scene will pull you back — note it (<em>thinking</em>) and return to the breath. You are not trying to stop the thoughts; you are training the muscle that doesn't follow them. That muscle is the whole game.</p>
+        <span class="cue">Notice, return. Notice, return.</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="time">18:00 →</div>
+      <div>
+        <h3><span class="order">06</span>The zoom out</h3>
+        <p>Ask the one question that resets everything: <em>are the people I love alive and well today?</em> If the answer is yes, this trigger belongs to the ninety-nine per cent that doesn't matter. Almost nothing does, measured against that. This is not a trick of perspective — it is the perspective; the rest of the day was always borrowing from it.</p>
+        <span class="cue">If they're well, the rest is small.</span>
+      </div>
+    </div>
+
+  </div>
+
+  <span class="num">VII.</span>
+  <h2>Before the spark — the morning shell.</h2>
+  <p>
+    Section VI is what to do once the match has been struck. The work that matters more happens before it ever is. Anger has a fuse, and the fuse shortens through the day — each minor scrape (the slow coffee, the bad email, the missed sleep, the second meeting that should have been an email) clips a few inches off it. By evening, what would have needed a real shove at 9am needs nothing at all. The trigger didn't get bigger; you got more flammable.
+  </p>
+  <p>
+    The stoics knew this before there was a word for cortisol. Marcus opened the day with <em>premeditatio malorum</em> — a quiet rehearsal of the small irritations he would meet by lunch, so that none of them could ambush him: <em>"I shall meet today people who are meddling, ungrateful, arrogant, dishonest… I cannot be harmed by any of them."</em> Mark Twain put the same idea sideways: eat the frog first thing, and nothing the rest of the day will taste worse. Same practice, two centuries apart — <strong>build the shell in the morning so the day cannot crack it.</strong>
+  </p>
+
+  <p>
+    This is why <strong>tracking the fuse is half the practice.</strong> Some days it is long; some days it is already short at 9am, before anything has actually happened — bad sleep, an unfinished argument carried over from yesterday, a body that didn't fully clear last week's cortisol. Rate it. Watch it. A short fuse is information, not character: slow down, take fewer meetings, eat sooner, decide nothing important, and treat the people around you with the patience you would want from them on the same kind of day. You cannot lengthen a fuse you don't know is short.
+  </p>
+
+  <ul class="armor">
+    <li><strong>One sit — five minutes.</strong> Eyes closed, attention on the breath at the nostrils. Not to feel calm; to practice the muscle that returns to the breath when the mind leaves. That muscle is the whole armor.</li>
+    <li><strong>Three gratitudes — specific.</strong> Name the people you love and that they are well today. If the answer is yes, almost everything that will happen between now and bed already belongs to the ninety-nine per cent that doesn't matter. Anchor the day there before the day starts negotiating with you.</li>
+    <li><strong>One line of stoic reading.</strong> A paragraph of Marcus, Seneca, or Epictetus. Not for information — you already know it. To re-tune the ear before the noise.</li>
+    <li><strong>Preview the day — find the frog.</strong> What is likely to bite? Picture it landing, picture not biting back. The rehearsal is half the response; the trigger meets a shape you've already practiced not being.</li>
+  </ul>
+
+  <p>
+    Done daily, this is not a routine. It is the shell — the layer between you and the noise that makes the smile, the low voice, the fierce calm of section II actually available when the moment comes. The protocol of section VI puts the body back together after the fire. <strong>This puts the body together before there is one.</strong>
+  </p>
+
   <div class="summary">
     <p>
       Venting: <strong>feeds the fire.</strong><br>
-      Anger: <strong>a grab for control you were never given.</strong><br>
+      Anger: <strong>a grab for control you were never given — and a cheap substitute for the calm that actually has it.</strong><br>
       Holding it: <strong>poison you drink yourself.</strong><br>
       The body: <strong>carries it for an hour — longer if you keep relighting it.</strong><br>
-      The only move that helps: <strong>notice, interrupt, locate control, and wait.</strong>
+      Morning: <strong>the only place the shell can be built.</strong><br>
+      The only move that helps: <strong>notice, interrupt, locate control, and wait — from a fuse you've kept long on purpose.</strong>
     </p>
   </div>
 
