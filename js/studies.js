@@ -17,4 +17,14 @@ export const STUDIES = [
     publishedAt: '2026-06-01',
     triggerTypes: [], // general — relevant to job, news, hypochondria alike
   },
+  {
+    id: 'anger-fuse',
+    title: 'The Anger Fuse',
+    excerpt:
+      'Why you can wake centered and be triggered before you could stop it — the cortisol awakening response, sleep debt and the amygdala, LeDoux\'s low road, the two wolves as habits with a body, and the genetics question argued both ways.',
+    readingMinutes: 11,
+    file: 'studies/anger/the-anger-fuse.html',
+    publishedAt: '2026-06-08',
+    triggerTypes: [],
+  },
 ];

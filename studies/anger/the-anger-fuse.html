@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The Anger Fuse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #14110f;
+    --paper: #f4ede1;
+    --paper-2: #ebe0cd;
+    --accent: #b8412e;     /* anger — terracotta */
+    --accent-2: #6b8460;   /* control — sage */
+    --accent-3: #c2823a;   /* fuse — amber */
+    --muted: #6b6155;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Fraunces", Georgia, serif;
+    line-height: 1.6;
+    font-size: 19px;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(rgba(20,17,15,0.04) 1px, transparent 1px);
+    background-size: 4px 4px;
+    mix-blend-mode: multiply;
+    z-index: 1;
+  }
+  .wrap { position: relative; z-index: 2; max-width: 680px; margin: 0 auto; padding: 10vh 6vw; }
+
+  .kicker {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  h1 {
+    font-family: "Fraunces", serif;
+    font-weight: 300;
+    font-size: clamp(40px, 7vw, 76px);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    margin: 0 0 2.5rem;
+  }
+  h1 em { font-style: italic; color: var(--accent); font-weight: 400; }
+
+  .lede {
+    font-size: 22px;
+    line-height: 1.5;
+    color: #2a2520;
+    margin: 0 0 4rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(20,17,15,0.15);
+  }
+
+  h2 {
+    font-family: "Fraunces", serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(26px, 3.5vw, 36px);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    margin: 3.5rem 0 1.2rem;
+    max-width: 26ch;
+  }
+  .num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.6rem;
+  }
+  p { margin: 0 0 1.2rem; }
+  p strong { font-weight: 600; }
+  .src {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12.5px;
+    color: var(--muted);
+    letter-spacing: 0.01em;
+  }
+
+  /* Chart */
+  .chart-wrap { margin: 2.5rem 0 3rem; }
+  .chart {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background:
+      repeating-linear-gradient(to bottom,
+        transparent 0, transparent 23px,
+        rgba(107, 132, 96, 0.28) 23px, rgba(107, 132, 96, 0.28) 24px),
+      var(--paper-2);
+    border: 1px solid rgba(20,17,15,0.15);
+    position: relative;
+    overflow: hidden;
+  }
+  .chart svg { width: 100%; height: 100%; display: block; }
+  .chart .axis-line { stroke: var(--ink); stroke-width: 1.5; }
+  .chart .tick { stroke: var(--ink); stroke-width: 1; opacity: 0.4; }
+  .chart .track-low { stroke: var(--accent); stroke-width: 2.4; fill: none; stroke-linecap: round; }
+  .chart .track-high { stroke: var(--accent-2); stroke-width: 2.4; fill: none; stroke-dasharray: 5 4; stroke-linecap: round; }
+  .chart .node { fill: var(--paper-2); stroke-width: 2; }
+  .chart .node-low { stroke: var(--accent); }
+  .chart .node-high { stroke: var(--accent-2); }
+  .chart-label { font-family: "Fraunces", serif; font-style: italic; font-size: 14px; }
+  .chart-mono {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    fill: var(--muted);
+  }
+  .legend {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.8rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 0.5rem; }
+  .legend span::before { content: ""; width: 18px; height: 3px; border-radius: 2px; }
+  .legend .l-low::before { background: var(--accent); }
+  .legend .l-high::before { background: var(--accent-2); }
+  .chart-caption {
+    margin-top: 1rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Stat row */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin: 2.5rem 0;
+  }
+  @media (max-width: 640px) { .stats { grid-template-columns: 1fr; } }
+  .stat { border-top: 2px solid var(--ink); padding-top: 0.9rem; }
+  .stat .n {
+    font-family: "Fraunces", serif;
+    font-weight: 300;
+    font-size: 40px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+  .stat .k {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .stat p { font-size: 15px; line-height: 1.5; margin: 0; color: #2a2520; }
+
+  .pull {
+    margin: 4rem 0;
+    padding: 2.5rem;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 2px;
+  }
+  .pull blockquote {
+    margin: 0;
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(22px, 3vw, 28px);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+  .pull blockquote::before {
+    content: "“";
+    color: var(--accent);
+    font-size: 1.4em;
+    line-height: 0;
+    vertical-align: -0.3em;
+    margin-right: 0.05em;
+  }
+
+  /* Two-column: wolves */
+  .wolves {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin: 2.5rem 0 3rem;
+  }
+  @media (max-width: 640px) { .wolves { grid-template-columns: 1fr; } }
+  .wolf {
+    border: 1px solid rgba(20,17,15,0.18);
+    padding: 1.4rem 1.5rem;
+    background: rgba(255,255,255,0.25);
+  }
+  .wolf .tag {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .wolf.bad .tag { color: var(--accent); }
+  .wolf.good .tag { color: var(--accent-2); }
+  .wolf h3 {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 22px;
+    margin: 0 0 0.6rem;
+    letter-spacing: -0.01em;
+  }
+  .wolf p { font-size: 15.5px; line-height: 1.55; margin: 0 0 0.5rem; color: #2a2520; }
+  .wolf p:last-child { margin-bottom: 0; }
+  .wolf ul {
+    margin: 0.4rem 0 0;
+    padding-left: 1.05rem;
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: #2a2520;
+  }
+  .wolf li { margin-bottom: 0.3rem; }
+
+  /* Inline notebook block */
+  .aside {
+    margin: 2rem 0;
+    padding: 1.4rem 1.6rem;
+    border-left: 3px solid var(--accent);
+    background: rgba(184, 65, 46, 0.05);
+    font-size: 16.5px;
+    line-height: 1.6;
+  }
+  .aside .lab {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+  .aside p { margin: 0 0 0.6rem; }
+  .aside p:last-child { margin: 0; }
+
+  /* Genetic table */
+  .genes {
+    margin: 2rem 0 2.5rem;
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+  }
+  .gene-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 1.5rem;
+    padding: 1.1rem 0;
+    border-top: 1px solid rgba(20,17,15,0.12);
+    align-items: baseline;
+  }
+  .gene-row:first-child { border-top: none; }
+  .gene-row .name {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    text-transform: uppercase;
+    padding-top: 0.1rem;
+  }
+  .gene-row h4 {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 17px;
+    margin: 0 0 0.35rem;
+    letter-spacing: -0.01em;
+  }
+  .gene-row p { font-size: 15px; line-height: 1.55; margin: 0; color: #2a2520; }
+  @media (max-width: 640px) {
+    .gene-row { grid-template-columns: 1fr; gap: 0.35rem; padding: 1rem 0; }
+  }
+
+  .summary {
+    margin: 3rem 0 1rem;
+    padding: 1.8rem 2rem;
+    border: 1px solid rgba(20,17,15,0.2);
+    background: rgba(255,255,255,0.3);
+  }
+  .summary p { margin: 0; font-size: 17px; line-height: 1.9; }
+
+  .end {
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(20,17,15,0.15);
+  }
+  .end .label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .end ul { margin: 0; padding-left: 1.1rem; }
+  .end li { font-size: 14px; line-height: 1.7; color: var(--muted); margin-bottom: 0.3rem; }
+  .fin {
+    margin-top: 2.5rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">Short essay · on anger · part II</div>
+  <h1>The <em>fuse</em> was already short<br>before you knew it.</h1>
+
+  <p class="lede">
+    You can wake up centered, sit quietly with the coffee, and be in fight-or-flight thirty seconds into the inbox — angry before you had the chance to choose not to be. This is not a failure of practice. It is the architecture of the brain. The fuse is a real, measurable thing, sometimes lit before you opened your eyes — and most of it happens before the part of you that thinks even sees the spark.
+  </p>
+
+  <span class="num">I.</span>
+  <h2>The fuse is not a metaphor.</h2>
+  <p>
+    "Irritability" is a polite word for a hard fact: the threshold at which your amygdala — the small almond of tissue that runs the body's threat alarm — decides a stimulus warrants the cortisol cascade. That threshold isn't fixed. It floats, moment to moment, on sleep, glucose, inflammation, hormonal phase, residual cortisol from yesterday's argument, and the prefrontal cortex's current ability to put a hand on the alarm's shoulder. <span class="src">(Davidson &amp; Begley, <em>The Emotional Life of Your Brain</em>; LeDoux, <em>The Emotional Brain</em>.)</span>
+  </p>
+  <p>
+    Think of two dials. One sets how easily the alarm fires — the <strong>amygdala's gain.</strong> The other sets how strongly the cortex can damp it once it does — the <strong>prefrontal brake.</strong> When the gain is high and the brake is weak, the fuse is short. You can have done nothing wrong, slept well, eaten breakfast, and still be sitting on a short fuse because the prior week pushed the dials, or because one of them is constitutionally set warmer than average to begin with.
+  </p>
+
+  <span class="num">II.</span>
+  <h2>Why the morning can already be loaded.</h2>
+  <p>
+    The cleanest version of the question — <em>why am I irritable before anything has happened?</em> — has a chemical answer. Cortisol does not start the day at zero. The <strong>cortisol awakening response</strong> is a sharp 50–75% rise in the first 30–45 minutes after you open your eyes; it's the body's way of getting you out of bed. On a healthy night that bump is functional. On a bad night, on the back end of a stressed week, or with chronic poor sleep, that morning surge lands on a system already sensitised — and a sensitised amygdala fires at lower input. <span class="src">(Pruessner et al., 1997; Fries et al., 2009.)</span>
+  </p>
+  <p>
+    Sleep loss is the heaviest single thumb on the scale. After a single night of deprivation, Matthew Walker's lab measured amygdala reactivity to negative images <strong>about 60% greater</strong> than in rested subjects — <em>and</em> reduced connectivity between the medial prefrontal cortex and the amygdala. Higher gain, weaker brake, in the same body. You wake up feeling calm because the conscious mind hasn't been asked anything yet; the moment the inbox asks, the system answers from the wrong setting. <span class="src">(Yoo, Gujar, Hu, Jolesz, &amp; Walker, 2007, <em>Curr. Biol.</em>)</span>
+  </p>
+  <p>
+    Add the smaller passengers: low blood glucose ("hangry" is a real construct — irritability tracks glucose drops within ten minutes), dehydration, inflammation markers from poor diet or illness, hormonal phase, caffeine timed against a flat curve. None of these <em>make</em> anger; they all clip the fuse.
+  </p>
+
+  <div class="chart-wrap">
+    <div class="chart">
+      <svg viewBox="0 0 800 440" preserveAspectRatio="none" aria-label="The two roads from trigger to response, with their timings">
+        <line class="axis-line" x1="40" y1="400" x2="780" y2="400" />
+        <line class="tick" x1="60"  y1="395" x2="60"  y2="405" />
+        <line class="tick" x1="170" y1="395" x2="170" y2="405" />
+        <line class="tick" x1="320" y1="395" x2="320" y2="405" />
+        <line class="tick" x1="500" y1="395" x2="500" y2="405" />
+        <line class="tick" x1="680" y1="395" x2="680" y2="405" />
+        <text class="chart-mono" x="60"  y="425" text-anchor="middle">0 ms</text>
+        <text class="chart-mono" x="170" y="425" text-anchor="middle">12 ms</text>
+        <text class="chart-mono" x="320" y="425" text-anchor="middle">40 ms</text>
+        <text class="chart-mono" x="500" y="425" text-anchor="middle">150 ms</text>
+        <text class="chart-mono" x="680" y="425" text-anchor="middle">300–500 ms</text>
+
+        <text class="chart-mono" x="48" y="120">low road — subcortical</text>
+        <text class="chart-mono" x="48" y="270">high road — cortical</text>
+
+        <!-- Low road -->
+        <path class="track-low" d="M 60 140 L 170 140" />
+        <circle class="node node-low" cx="60"  cy="140" r="7" />
+        <circle class="node node-low" cx="170" cy="140" r="7" />
+        <text class="chart-label" x="60"  y="178" text-anchor="middle">trigger</text>
+        <text class="chart-label" x="170" y="178" text-anchor="middle">amygdala fires</text>
+        <text class="chart-mono" x="170" y="196" text-anchor="middle">body launches fight</text>
+
+        <!-- High road -->
+        <path class="track-high" d="M 60 290 L 320 290 L 500 290 L 680 290" />
+        <circle class="node node-high" cx="60"  cy="290" r="7" />
+        <circle class="node node-high" cx="320" cy="290" r="7" />
+        <circle class="node node-high" cx="500" cy="290" r="7" />
+        <circle class="node node-high" cx="680" cy="290" r="7" />
+        <text class="chart-label" x="320" y="328" text-anchor="middle">cortex sees it</text>
+        <text class="chart-label" x="500" y="328" text-anchor="middle">prefrontal can act</text>
+        <text class="chart-label" x="680" y="328" text-anchor="middle">consciously angry</text>
+        <text class="chart-mono" x="680" y="346" text-anchor="middle">you "decide" how to feel</text>
+
+        <!-- Vertical drop showing body-launches-fight before cortex even sees -->
+        <line x1="170" y1="148" x2="170" y2="282" stroke="#b8412e" stroke-width="1" stroke-dasharray="3 3" opacity="0.6" />
+      </svg>
+    </div>
+    <div class="legend">
+      <span class="l-low">low road · thalamus → amygdala</span>
+      <span class="l-high">high road · thalamus → cortex → prefrontal</span>
+    </div>
+    <p class="chart-caption">
+      Joseph LeDoux's two routes from stimulus to response. The fast subcortical path fires the body's threat reaction in around twelve milliseconds — <em>before the cortex has even resolved what the stimulus was.</em> The slow cortical path that lets you choose how to respond doesn't arrive until ~150 ms, and conscious awareness of being angry trails behind that. By the time you "decide", you've already been launched.
+    </p>
+  </div>
+
+  <span class="num">III.</span>
+  <h2>The trick — why you get triggered before you can think.</h2>
+  <p>
+    This is the answer to the question that hurts the most: <em>I was calm, I was centered, and I still got triggered before I could stop it.</em> The honest answer is that <strong>you cannot stop it in the moment, because the moment was already over before your conscious mind arrived at it.</strong>
+  </p>
+  <p>
+    LeDoux mapped this in the 90s. Sensory information from the world goes to the thalamus, which forwards a low-resolution preview straight to the amygdala — the <em>low road</em>, fast and crude, around twelve milliseconds. The same information also takes the <em>high road</em> — up through sensory cortex, integrated, sent on to the prefrontal cortex which decides whether the alarm is warranted. That path takes 40 milliseconds to even start being useful, and a deliberate response from the prefrontal cortex doesn't get its hand on the wheel until somewhere around 150 milliseconds. <strong>Your body has already been told to fight ten times before the part of you that reads philosophy has been told there was a fight.</strong>
+  </p>
+  <p>
+    This isn't a bug. The low road exists because in the evolutionary environment, the cost of being slow to a real threat was death; the cost of being fast to a false one was a wasted heartbeat. We are descended from the ones who flinched first. The cortical brake came later, and it is comparatively a thin, slow, expensive layer on top of an old, fast, cheap one. When you feel "triggered before you could stop it" — that is not a failure. That is the design.
+  </p>
+
+  <div class="aside">
+    <span class="lab">What this means</span>
+    <p>The intervention point is not at the moment of the trigger. The trigger is too fast. The intervention point is <strong>the dial setting before the trigger</strong> — how high the amygdala's gain is, how strong the prefrontal brake is, when you walk into the room. That is set by sleep, by the previous day's cortisol, by the morning's first hour, and by the slow rewiring of years of practice. There is no in-the-moment fix. There is only the fuse you brought.</p>
+  </div>
+
+  <span class="num">IV.</span>
+  <h2>Two wolves — and what the metaphor gets right and wrong.</h2>
+  <p>
+    There is a story, often told as Cherokee, of an elder explaining the human condition to a grandchild. <em>Inside every person there are two wolves at war. One is anger, jealousy, resentment, ego. The other is peace, love, patience, joy.</em> The child asks: <em>which one wins?</em> The elder answers: <em>the one you feed.</em>
+  </p>
+  <p class="src">
+    (Provenance disputed — the parable is widely attributed to Cherokee teachers but its actual lineage is uncertain; some trace it to mid-twentieth-century evangelical sermons. The biology, however, is not in doubt.)
+  </p>
+
+  <div class="wolves">
+    <div class="wolf bad">
+      <div class="tag">The fast wolf</div>
+      <h3>Subcortical, automatic, ancient</h3>
+      <p>Lives in the amygdala and the brainstem. Wins by being earlier — it has already moved before the slow wolf knows there was a contest. Doesn't ask permission. Gets fed by:</p>
+      <ul>
+        <li>Poor sleep, chronic cortisol, inflammation</li>
+        <li>Rehearsed grievance, replayed scenes</li>
+        <li>Venting and outrage feedback loops</li>
+        <li>Every successful trigger — the circuit thickens</li>
+      </ul>
+    </div>
+    <div class="wolf good">
+      <div class="tag">The slow wolf</div>
+      <h3>Cortical, chosen, recent</h3>
+      <p>Lives in the prefrontal cortex and the long-range connections to the amygdala. Wins by being prepared — strong enough, on a long enough fuse, to take the wheel before the fast wolf has finished its work. Gets fed by:</p>
+      <ul>
+        <li>Sleep, sit, gratitude, slow breath</li>
+        <li>Stoic reading and the morning rehearsal</li>
+        <li>Naming the feeling (Lieberman, 2007)</li>
+        <li>Every interrupted reaction — the brake thickens too</li>
+      </ul>
+    </div>
+  </div>
+
+  <p>
+    What the metaphor gets right: the wolf you feed wins. Every replay of the scene, every successful eruption, lays the circuit down thicker — the next trigger gets a faster, easier path. Every interrupted reaction, every five-minute sit, every refusal to bite back, does the same in reverse. The brain is plastic on both sides. The wolf is not a creature; <strong>it is a habit with a body.</strong>
+  </p>
+  <p>
+    What the metaphor gets wrong: it suggests the wolves are equal contestants waiting on your choice. They are not. The fast wolf already moved. The real practice is not which wolf you feed in the moment — by the moment it is too late — but which one you have been feeding for the last six months. <em>You are not choosing your reaction. You are choosing, over years, what kind of system reacts.</em>
+  </p>
+
+  <span class="num">V.</span>
+  <h2>Is it genetic? — both yes and no.</h2>
+  <p>
+    The honest answer is yes — and not in the way that ends the conversation. Twin studies converge on a heritability for trait anger and irritability somewhere around <strong>40%</strong>, similar to most temperament dimensions. About half of the difference between people is in the dials they were handed; about half is what life and practice have done to those dials. <span class="src">(Coccaro et al., 1997; Wang et al., 2013, on twin estimates.)</span>
+  </p>
+
+  <div class="genes">
+    <div class="gene-row">
+      <div class="name">MAOA-L</div>
+      <div>
+        <h4>The "warrior gene" — and a famous footnote</h4>
+        <p>A low-activity variant of the monoamine oxidase A gene clears serotonin and dopamine more slowly. Caspi (2002) found it predicted antisocial behaviour <em>only in combination with childhood maltreatment</em>; carriers raised in safe environments showed no effect. Genes load the gun; environment pulls the trigger.</p>
+      </div>
+    </div>
+    <div class="gene-row">
+      <div class="name">5-HTTLPR</div>
+      <div>
+        <h4>Short serotonin transporter, hot amygdala</h4>
+        <p>Carriers of the short allele show measurably stronger amygdala responses to negative stimuli in fMRI (Hariri et al., 2002). The dial labelled "amygdala gain" comes from the factory turned up a notch. Trainable, but the starting position is not the population average.</p>
+      </div>
+    </div>
+    <div class="gene-row">
+      <div class="name">COMT</div>
+      <div>
+        <h4>Warrior vs worrier</h4>
+        <p>The Val158Met variant changes how quickly dopamine is cleared from the prefrontal cortex. Val carriers ("warriors") clear it faster — colder under stress, but also less prefrontal damping in calm. Met carriers ("worriers") sit with more dopamine and are more reactive to it. Neither is "better"; both are starting positions.</p>
+      </div>
+    </div>
+    <div class="gene-row">
+      <div class="name">heritable</div>
+      <div>
+        <h4>~40% of variance, ~0% of destiny</h4>
+        <p>Heritability is a population statistic — it tells you nothing about whether any given person can change. Davidson's meditation studies, and decades of CBT and DBT outcomes, show amygdala reactivity drops with practice in carriers and non-carriers alike. The genes set the slope of the curve. They do not set the position on it.</p>
+      </div>
+    </div>
+  </div>
+
+  <p>
+    So: yes, irritability is partly genetic — which is why two people in identical circumstances will not have identical fuses, and why telling yourself "I should be calm by now, it's been three weeks" is unfair to the dials you were handed. <strong>And:</strong> no, not in the way that lets you off the hook — because the same body of evidence shows the system is plastic, that the prefrontal brake thickens with use, and that the people who train it the longest end up with measurably different brains. The genes are the soil. They are not the harvest.
+  </p>
+
+  <span class="num">VI.</span>
+  <h2>So — what actually moves.</h2>
+  <p>
+    Put it together and the picture is uncomfortably clean. The trigger arrives in milliseconds. The reaction is launched before the cortex knows there's a stimulus. By the time you feel angry, you are several beats late. The variable you actually own is not the response — it is <strong>the system that was loaded into the chair before the morning started.</strong>
+  </p>
+  <p>
+    That system has three legs. <strong>Sleep</strong> sets the amygdala's gain for the day, and undersleep is non-negotiable in its effect. <strong>The morning hour</strong> — sit, gratitude, a line of stoic reading, a quiet preview of the day — gives the prefrontal cortex five minutes of practice using the brake before the first email asks for it. <strong>The slow accumulation</strong> — months of feeding the slow wolf, of interrupted reactions, of letting cortisol curves fall instead of restarting them — physically widens the connections from prefrontal cortex to amygdala. None of these works in the moment. All of them work for the moment, before it arrives.
+  </p>
+  <p>
+    The propensity rating in the check-in is not really a feeling. <strong>It is an estimate of how short the fuse already is.</strong> Some mornings the answer is 2. Some it is 8 before anything has happened. The rating won't change the day's biology — that's already set — but knowing the number tells you what kind of day to plan: slow down, take fewer meetings, eat sooner, decide nothing important, give the people around you the patience you would want from them on a day you'd rated yourself an 8.
+  </p>
+
+  <div class="stats">
+    <div class="stat"><div class="n">~12ms</div><div class="k">low road fires</div><p>Thalamus to amygdala — the body is launched into fight before the cortex has the stimulus in focus.</p></div>
+    <div class="stat"><div class="n">~150ms</div><div class="k">brake arrives</div><p>The prefrontal cortex's earliest realistic point of intervention. By here the autonomic cascade is already in flight.</p></div>
+    <div class="stat"><div class="n">~40%</div><div class="k">heritable</div><p>Twin-study estimate for trait irritability. Roughly half the dial position is inherited. The other half is yours.</p></div>
+  </div>
+
+  <div class="pull">
+    <blockquote>
+      The trigger never pulls itself. But the fuse was lit, or kept long, hours before you knew the match was coming — and the practice is whether you kept it long, not whether you stopped the spark.
+    </blockquote>
+  </div>
+
+  <div class="summary">
+    <p>
+      The fuse is real: <strong>the amygdala's gain, minus the prefrontal brake, on the day you happen to be having.</strong><br>
+      The morning can be loaded: <strong>poor sleep, cortisol awakening response, glucose, residual stress from yesterday.</strong><br>
+      You cannot stop the spark: <strong>the low road fires before the cortex sees it.</strong><br>
+      The wolves are habits: <strong>the one that already moved is the one you've been feeding.</strong><br>
+      Genes are the soil, not the harvest: <strong>~40% inherited, the rest is practice.</strong><br>
+      The only variable you own: <strong>the fuse you brought into the room.</strong>
+    </p>
+  </div>
+
+  <div class="end">
+    <div class="label">Further reading</div>
+    <ul>
+      <li>LeDoux, J. <em>The Emotional Brain.</em> (1996). The original mapping of the low road and high road from thalamus to amygdala.</li>
+      <li>Yoo, S.-S., Gujar, N., Hu, P., Jolesz, F. A., &amp; Walker, M. P. (2007). <em>The human emotional brain without sleep — a prefrontal amygdala disconnect.</em> Current Biology, 17(20).</li>
+      <li>Pruessner, J. C., Wolf, O. T., Hellhammer, D. H., et al. (1997). <em>Free cortisol levels after awakening: a reliable biological marker for the assessment of adrenocortical activity.</em> Life Sciences, 61(26).</li>
+      <li>Hariri, A. R., Mattay, V. S., Tessitore, A., et al. (2002). <em>Serotonin transporter genetic variation and the response of the human amygdala.</em> Science, 297(5580).</li>
+      <li>Caspi, A., McClay, J., Moffitt, T. E., et al. (2002). <em>Role of genotype in the cycle of violence in maltreated children.</em> Science, 297(5582). (MAOA × environment.)</li>
+      <li>Coccaro, E. F., Bergeman, C. S., Kavoussi, R. J., &amp; Seroczynski, A. D. (1997). <em>Heritability of aggression and irritability: a twin study.</em> Biological Psychiatry, 41(3).</li>
+      <li>Davidson, R. J., &amp; Begley, S. <em>The Emotional Life of Your Brain.</em> (Affective styles, prefrontal asymmetry, plasticity.)</li>
+      <li>Lieberman, M. D., et al. (2007). <em>Putting feelings into words: affect labeling disrupts amygdala activity.</em> Psychological Science, 18(5).</li>
+    </ul>
+    <p class="fin">— end</p>
+  </div>
+
+</div>
+</body>
+</html>
