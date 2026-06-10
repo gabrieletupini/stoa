@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The Tax and the Teacher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #14110f;
+    --paper: #f4ede1;
+    --paper-2: #ebe0cd;
+    --accent: #b8412e;     /* the body's charge — terracotta */
+    --accent-2: #6b8460;   /* the lesson, the release — sage */
+    --muted: #6b6155;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Fraunces", Georgia, serif;
+    line-height: 1.6;
+    font-size: 19px;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background-image: radial-gradient(rgba(20,17,15,0.04) 1px, transparent 1px);
+    background-size: 4px 4px;
+    mix-blend-mode: multiply;
+    z-index: 1;
+  }
+  .wrap { position: relative; z-index: 2; max-width: 680px; margin: 0 auto; padding: 10vh 6vw; }
+
+  .kicker {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  h1 {
+    font-family: "Fraunces", serif;
+    font-weight: 300;
+    font-size: clamp(40px, 7vw, 76px);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    margin: 0 0 2.5rem;
+  }
+  h1 em { font-style: italic; color: var(--accent); font-weight: 400; }
+
+  .lede {
+    font-size: 22px;
+    line-height: 1.5;
+    color: #2a2520;
+    margin: 0 0 4rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(20,17,15,0.15);
+  }
+
+  h2 {
+    font-family: "Fraunces", serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(26px, 3.5vw, 36px);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    margin: 3.5rem 0 1.2rem;
+    max-width: 26ch;
+  }
+  .num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.6rem;
+  }
+  p { margin: 0 0 1.2rem; }
+  p strong { font-weight: 600; }
+  .src {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12.5px;
+    color: var(--muted);
+    letter-spacing: 0.01em;
+  }
+
+  /* Diagram */
+  .chart-wrap { margin: 2.5rem 0 3rem; }
+  .chart {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background:
+      repeating-linear-gradient(to bottom,
+        transparent 0, transparent 23px,
+        rgba(107, 132, 96, 0.28) 23px, rgba(107, 132, 96, 0.28) 24px),
+      var(--paper-2);
+    border: 1px solid rgba(20,17,15,0.15);
+    position: relative;
+    overflow: hidden;
+  }
+  .chart svg { width: 100%; height: 100%; display: block; }
+  .axis-line { stroke: var(--ink); stroke-width: 1.5; }
+  .divider { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 4; opacity: 0.4; }
+  .curve { fill: none; stroke: var(--accent); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+  .curve-held { fill: none; stroke: var(--ink); stroke-width: 2; stroke-dasharray: 5 4; opacity: 0.7; }
+  .zone-label { font-family: "Fraunces", serif; font-style: italic; font-size: 17px; fill: var(--ink); }
+  .chart-mono {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    fill: var(--muted);
+  }
+  .chart-caption {
+    margin-top: 1rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Two faults grid */
+  .three {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 2rem;
+    margin: 3rem 0;
+  }
+  @media (max-width: 640px) { .three { grid-template-columns: 1fr; } }
+  .word { border-top: 2px solid var(--ink); padding-top: 1rem; }
+  .word .label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+  .word h3 {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 23px;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.01em;
+  }
+  .word p { font-size: 15.5px; line-height: 1.5; margin: 0; color: #2a2520; }
+
+  .pull {
+    margin: 4rem 0;
+    padding: 2.5rem;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 2px;
+  }
+  .pull blockquote {
+    margin: 0;
+    font-family: "Fraunces", serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(22px, 3vw, 28px);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+  .pull blockquote::before {
+    content: "\201C";
+    color: var(--accent);
+    font-size: 1.4em;
+    line-height: 0;
+    vertical-align: -0.3em;
+    margin-right: 0.05em;
+  }
+
+  /* The three moves */
+  .protocol {
+    margin: 2rem 0 3rem;
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid rgba(20,17,15,0.12);
+    align-items: baseline;
+  }
+  .step:first-child { border-top: none; }
+  .step .time {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+    padding-top: 0.35rem;
+  }
+  .step h3 {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 22px;
+    margin: 0 0 0.55rem;
+    letter-spacing: -0.01em;
+  }
+  .step h3 .order {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    margin-right: 0.7em;
+    vertical-align: 0.18em;
+  }
+  .step p { font-size: 16px; line-height: 1.55; margin: 0; color: #2a2520; }
+  @media (max-width: 640px) {
+    .step { grid-template-columns: 1fr; gap: 0.4rem; padding: 1.3rem 0; }
+    .step .time { padding-top: 0; }
+  }
+
+  .summary {
+    margin: 3rem 0 1rem;
+    padding: 1.8rem 2rem;
+    border: 1px solid rgba(20,17,15,0.2);
+    background: rgba(255,255,255,0.3);
+  }
+  .summary p { margin: 0; font-size: 17px; line-height: 1.9; }
+
+  .end {
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(20,17,15,0.15);
+  }
+  .end .label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .end ul { margin: 0; padding-left: 1.1rem; }
+  .end li { font-size: 14px; line-height: 1.7; color: var(--muted); margin-bottom: 0.3rem; }
+  .fin {
+    margin-top: 2.5rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">Short essay · on triggers</div>
+  <h1>The body pays<br>for every trigger.<br><em>Make it buy a lesson.</em></h1>
+
+  <p class="lede">
+    A trigger is two things at once, and they pull in opposite directions. It is a cost the body pays in full whether or not anything comes of it — and it is the only honest mirror that shows up uninvited. The whole art is in holding both truths: you would not choose the fire, but if you are standing in one, you do not waste it. Here is the shape of that art.
+  </p>
+
+  <span class="num">I.</span>
+  <h2>The bill is paid in advance, and in full.</h2>
+  <p>
+    The trigger lasts seconds. The chemistry lasts an hour. Adrenaline in the first moment, then cortisol climbing for fifteen or twenty minutes and drifting back to baseline over the better part of an hour — all of it spent by the body, all of it spent <strong>before you have decided whether to learn anything.</strong> The heart rate, the lost sleep, the wear that accrues quietly over years: the cost does not wait for your verdict. It is non-refundable. <span class="src">(Dickerson &amp; Kemeny, 2004; Sapolsky, <em>Why Zebras Don't Get Ulcers</em>.)</span>
+  </p>
+  <p>
+    This is the unsentimental fact under everything that follows. A trigger is an expense you have already incurred. The only open question — the only thing still up to you — is whether you walk away with something for the money.
+  </p>
+
+  <span class="num">II.</span>
+  <h2>There are two faults in every fire.</h2>
+  <p>
+    Look into the moment honestly and you will almost always find two things, not one. There is a fault outside — the other person's move, the unfair turn, the thing that should not have happened. And there is a fault inside — the place in you that the move could catch: the wanting, the pride, the expectation, the wish for something that was never promised.
+  </p>
+  <p>
+    Most people see only the outer one. It is louder, and it is someone else's, which makes it easier to look at. But the trigger is the rare moment both become visible at the same time, lit by the same flash. That double exposure is exactly what makes it a mirror and not just an injury.
+  </p>
+
+  <div class="three">
+    <div class="word">
+      <div class="label">Outside</div>
+      <h3>The fault you can see</h3>
+      <p>Their move, the unfair turn, the thing that should not have been. Real — but not yours, and rarely within your reach to mend.</p>
+    </div>
+    <div class="word">
+      <div class="label">Inside</div>
+      <h3>The fault that caught</h3>
+      <p>The hook the move landed on — the wanting, the expectation, the pride. Less visible, less comfortable, and the only one you can actually work.</p>
+    </div>
+  </div>
+
+  <span class="num">III.</span>
+  <h2>Only one of them is yours to mend.</h2>
+  <p>
+    Epictetus drew the line that settles it: some things are up to us, and most things are not. The outer fault belongs to the second category almost entirely — another's character, the past, the turn of events. You can name it, you can even be right about it, but it will not move because you are correct. <strong>The inner fault is the only one inside the circle of your power.</strong> So that is where the work goes — not because the outside doesn't matter, but because effort spent there is effort poured on the ground. <span class="src">(Epictetus, <em>Enchiridion</em> 1.)</span>
+  </p>
+  <p>
+    This is not a counsel to excuse the other person. It is a counsel about where your one hour of attention will actually change something. Read the outer fault for information; spend yourself on the inner one.
+  </p>
+
+  <span class="num">IV.</span>
+  <h2>So the dichotomy — which is really a sequence.</h2>
+  <p>
+    It sounds like a contradiction: we want to <em>evade</em> triggers, and yet when we are in one we are told to <em>welcome</em> it, and then to <em>let it go.</em> But these do not compete. They belong to three different moments, and run in order.
+  </p>
+
+  <div class="chart-wrap">
+    <div class="chart">
+      <svg viewBox="0 0 800 400" aria-label="The body's charge over a trigger, divided into evade, welcome, and release">
+        <line class="axis-line" x1="50" y1="40" x2="50" y2="340" />
+        <line class="axis-line" x1="50" y1="340" x2="770" y2="340" />
+        <!-- zone dividers -->
+        <line class="divider" x1="250" y1="50" x2="250" y2="340" />
+        <line class="divider" x1="470" y1="50" x2="470" y2="340" />
+        <!-- the body's charge: flat, rise, fall -->
+        <path class="curve" d="M 50 332 L 235 330 C 300 326, 350 120, 400 95 C 450 120, 540 320, 620 332 L 700 334" />
+        <!-- held on: never comes down -->
+        <path class="curve-held" d="M 400 95 C 470 140, 470 112, 540 122 C 600 130, 600 100, 660 118 C 712 130, 724 108, 765 122" />
+        <!-- zone labels -->
+        <text class="zone-label" x="150" y="305" text-anchor="middle" fill="#6b8460">evade</text>
+        <text class="zone-label" x="360" y="78" text-anchor="middle" fill="#b8412e">welcome</text>
+        <text class="zone-label" x="560" y="250" text-anchor="middle" fill="#6b8460">release</text>
+        <!-- mono captions -->
+        <text class="chart-mono" x="150" y="325" text-anchor="middle">before the spark</text>
+        <text class="chart-mono" x="360" y="96" text-anchor="middle">read the mirror</text>
+        <text class="chart-mono" x="560" y="270" text-anchor="middle">drop the charge</text>
+        <text class="chart-mono" x="690" y="110" text-anchor="end" fill="#14110f">held on → never falls</text>
+        <text class="chart-mono" x="58" y="56">the body's charge</text>
+        <text class="chart-mono" x="765" y="358" text-anchor="end">time →</text>
+      </svg>
+    </div>
+    <p class="chart-caption">
+      One curve, three moments. Before it begins: evade. On the rise: welcome it, read what it shows. On the fall: let it go. The dashed line is what happens when you don't — the charge re-fed by replay, a one-minute event stretched across the day.
+    </p>
+  </div>
+
+  <div class="protocol">
+    <div class="step">
+      <div class="time">Before</div>
+      <div>
+        <h3><span class="order">01</span>Evade</h3>
+        <p>There is no virtue in walking into a fire for nothing. If you know what reliably catches you — the person, the room, the topic — you are allowed to simply not go there. Avoiding the occasion is not weakness; it is the cheapest and most reliable move there is. Seneca's first remedy for anger was to keep clear of what inflames it.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="time">Inside</div>
+      <div>
+        <h3><span class="order">02</span>Welcome</h3>
+        <p>But once it has arrived, the avoiding is over — now it is here, and it is showing you something. Don't flinch from the mirror. The dose is already paid; the only waste would be to feel all of it and read none of it. Ask the two questions: what is the fault outside, and what is the hook inside that it caught? Take the second one seriously.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="time">After</div>
+      <div>
+        <h3><span class="order">03</span>Release</h3>
+        <p>This is the step almost everyone skips. They extract the lesson and then keep the charge — replaying the scene, nursing the grievance, pressing the button again and again. That is paying the body a second time and buying nothing. Once the lesson is in hand, the rest is just a coal in your own palm. Set it down.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pull">
+    <blockquote>
+      To hold a trigger past its lesson is to pay the body twice and buy nothing the second time. The lesson is the only thing worth carrying out of the room. The charge stays behind.
+    </blockquote>
+  </div>
+
+  <span class="num">V.</span>
+  <h2>Why the order cannot be reversed.</h2>
+  <p>
+    Each move fails if you try it at the wrong moment. <strong>Welcome before the trigger,</strong> and you are courting fires for no reason — seeking out the wound to prove you can take it. <strong>Evade once you are already in it,</strong> and you suppress the thing without reading it; the cost is paid and the lesson is thrown away. <strong>Skip the release,</strong> and you turn a single trigger into a standing one — the same hour of harm, re-billed daily, with no new wisdom to show for it.
+  </p>
+  <p>
+    Held in order, though, the dichotomy dissolves. You do not seek the fire; if it finds you, you learn from it; once you have learned, you let it burn out. Evade what you can. Welcome what you cannot. Release what you have already understood.
+  </p>
+
+  <div class="summary">
+    <p>
+      A trigger: <strong>a cost the body pays in full, before you decide anything.</strong><br>
+      Two faults: <strong>one outside, one inside — both lit at once.</strong><br>
+      Your reach: <strong>only the inner one. Read the outer; work the inner.</strong><br>
+      The sequence: <strong>evade before · welcome inside · release after.</strong><br>
+      The skipped step: <strong>letting go — because holding on pays the body twice and buys nothing.</strong>
+    </p>
+  </div>
+
+  <div class="end">
+    <div class="label">Further reading</div>
+    <ul>
+      <li>Epictetus, <em>Enchiridion</em> 1 &amp; 8. (The dichotomy of control; and wishing events to be as they are.)</li>
+      <li>Seneca, <em>De Ira</em>, Book III. (Avoiding what inflames; the remedy of delay.)</li>
+      <li>Marcus Aurelius, <em>Meditations.</em> (Obstacles as material; what is in the way becomes the way.)</li>
+      <li>Sapolsky, R. M. <em>Why Zebras Don't Get Ulcers</em>; Dickerson &amp; Kemeny (2004). (The body's cost, and how rumination re-doses it.)</li>
+    </ul>
+    <p class="fin">— end</p>
+  </div>
+
+</div>
+</body>
+</html>
