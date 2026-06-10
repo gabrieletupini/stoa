@@ -177,51 +177,11 @@ export const ARTICLES = [
     topic: 'philosophy',
     excerpt:
       "Every religion has two layers — the pointing finger and the moon it points at. The first is the artifact humans defend with their lives; the second is the reality that has never needed defending.",
-    readingMinutes: 8,
+    readingMinutes: 9,
     publishedAt: '2026-06-10',
-    body: `
-<p>There is the religion that is taught, and there is the religion that is true, and most people spend a lifetime mistaking the first for the second.</p>
-
-<p>Every tradition has two layers. The first is what can be written down: the words, the rituals, the names of God, the metaphysics, the cosmology, the calendar of feasts. This is the human work — the scaffolding built across centuries to point at something. The second is what the scaffolding points at: the thing itself, the reality that does not depend on which book you opened or which century you were born in. The old Zen teachers had the cleanest image for the distinction. <strong>The finger points at the moon. The finger is not the moon. Do not mistake one for the other.</strong></p>
-
-<h3>The moon does not need defending</h3>
-<p>What every tradition reports, when it gets quiet enough to listen — the Christian mystic, the Sufi, the Buddhist sitter, the Hindu sage, the Hasid, the Quaker — is the same set of things, in close to the same order. A stillness underneath the surface noise. The disappearance of the line between you and the rest of the world. A sense that everything is happening to and as one thing. The peace that, the New Testament says, passes understanding; that the Bhagavad Gita calls <em>shanti</em>; that the Tao Te Ching points at when it says the way that can be named is not the eternal way.</p>
-
-<p>You can read all four side by side and the reports converge. Not because the authors copied each other — most never met — but because they were describing the same country from different doors. <strong>That country is the moon.</strong> It does not need a defender. It is already what is. You will not strengthen it by arguing for it. You will not weaken it by doubting it. It survives all conversation about it.</p>
-
-<h3>The finger gets attached to</h3>
-<p>The pointing finger is different. The finger is a human artifact, and humans get attached to their artifacts. The particular shape of the finger — the doctrine, the language, the lineage — becomes, in enough generations, the thing itself. The map becomes the country. The story about God becomes God. And then the question shifts from <em>have I seen what this points at?</em> to <em>is my finger the right finger?</em></p>
-
-<p>This is where things get expensive.</p>
-
-<h3>The collective finger</h3>
-<p>Consider what happens when a finger grows large enough to belong to a country. The same God of Abraham is invoked, today, by three traditions that have spent fourteen centuries killing each other over which prophet, which book, which uncle, which hill. Sunni and Shia split in the year 632 over who should succeed Muhammad — not over the moon, over the finger — and the descendants of that argument are still detonating in Damascus and Baghdad. The Crusaders rode into Jerusalem with a cross on their shields, killed the Jewish and Muslim inhabitants in their houses, and prayed in the same Holy Sepulchre at the end of the day. The Buddhist monks of Myanmar, whose central instruction is non-harm, have led mobs against the Rohingya. The same human hand, holding similar fingers, pointing at slightly different angles, has caused more bloodshed than most plagues.</p>
-
-<p>None of those wars were fought over the moon. They were fought over the angle of the finger. <strong>Mine is straighter. Mine has the right joint. Mine is in the right book.</strong> The collective ego attaches to the finger the way the personal ego attaches to a face in the mirror — it confuses the thing it identifies with for what it actually is. And once a million people have made the same confusion together, the finger has its own momentum, and it can move armies.</p>
-
-<p>The pattern is the same at every scale. Two believers in the same religion will argue about a footnote. Two within the same denomination will argue about a verse. Two within the same household will argue about how the verse should be read aloud. The argument is never about the moon. The moon is fine.</p>
-
-<h3>Why this matters in a normal life</h3>
-<p>You do not need to be running an empire to feel the cost. The same mechanism is at work in the friend who left the conversation hurt because you do not believe the same thing they do, in the family thread that goes quiet at Christmas because someone said one wrong sentence about faith, in the inner pressure to defend a position you have not actually examined since you were a child. Every one of these is the finger thinking it is the moon.</p>
-
-<p>If you can hold the two layers apart in your own mind — the finger here, the moon there — you become harder to convert and easier to learn from. You can read the Sermon on the Mount and the Tao Te Ching and the Dhammapada in the same week and notice they are describing the same room from three sides. You can sit with someone of a different tradition and find more in common than not. <strong>You stop defending a finger.</strong> You also become less defensive about your own; the particular tradition you were raised in, or chose, is not less true for being one of many — it is one specific door into the same room. Loving your door does not require demolishing the others.</p>
-
-<h3>What the Buddha actually said</h3>
-<p>In the Kalama Sutta, when the people of Kalama ask the Buddha which of the many wandering teachers passing through their village to believe, his answer is famously the opposite of the answer of almost every other religious teacher in history. He does not tell them to believe him. He tells them not to.</p>
-
-<blockquote>"Do not go by reports, by legends, by tradition, by scripture, by logical conjecture, by inference, by analogies, by agreement through pondering views, by probability, or by the thought 'this contemplative is our teacher.' When you yourselves know: <em>these qualities, when adopted and carried out, lead to welfare and to happiness</em> — then enter and remain in them."</blockquote>
-
-<p>The line is usually paraphrased: <em>do not believe anything I say if it does not resonate with you</em>. The paraphrase is a little softer than the original, but the meaning survives. The Buddha is pointing at his own finger and telling you not to mistake it for the moon. <strong>Look at what I am pointing at. If you see it, you do not need me. If you do not see it, no amount of believing me will help.</strong></p>
-
-<p>Two and a half thousand years later, the instruction still costs nothing to follow. The moon is right where he said it would be. The finger is whatever finger you came in with. The work is not to defend it. The work is to look up.</p>
-`,
-    sources: [
-      { name: 'Anguttara Nikaya 3.65 — the Kalama Sutta. (Thanissaro Bhikkhu translation.)' },
-      { name: 'Aldous Huxley. (1945). The Perennial Philosophy. (The classic case for a shared mystical core across traditions.)' },
-      { name: 'Huston Smith. (1991). The World\\u2019s Religions.' },
-      { name: 'Karen Armstrong. (1993). A History of God: The 4,000-Year Quest of Judaism, Christianity and Islam.' },
-      { name: 'Tao Te Ching, chapter 1. (Mitchell, Lau, and Henricks translations.)' },
-    ],
+    // External standalone HTML — opens in a new tab instead of the in-app modal.
+    file: 'studies/philosophy/the-finger-and-the-moon.html',
+    sources: [],
   },
   {
     id: 'marcus-on-anger',

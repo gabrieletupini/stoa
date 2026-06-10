@@ -982,6 +982,12 @@ function prettyShortDate(s) {
 function openArticle(id) {
   const a = ARTICLES.find(x => x.id === id);
   if (!a) return;
+  // If the article points at a standalone HTML file (like the philosophy
+  // pieces), open it in a new tab instead of the in-app modal.
+  if (a.file) {
+    window.open(a.file, '_blank', 'noopener');
+    return;
+  }
   $('av-topic').textContent = TOPIC_LABELS[a.topic] || a.topic;
   $('av-title').textContent = a.title;
   $('av-meta').textContent = `${a.readingMinutes} min read · ${prettyShortDate(a.publishedAt)}`;
